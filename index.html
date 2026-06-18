@@ -136,7 +136,7 @@
   </section>
 </div>
 
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c5fd34455bbe0b7858d63d08e1ddb74a&autoload=false"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=22c150dc7ff5eaaa78bdad3890a3b969&autoload=false"></script>
 <script>
 const $=id=>document.getElementById(id);
 function showTab(n){
@@ -187,10 +187,13 @@ const MAP=(function(){
     {id:'156',name:'광주',lat:35.1595,lng:126.8526,hot:19,trop:19,ta:15.1},
     {id:'133',name:'대전',lat:36.3504,lng:127.3845,hot:24,trop:17,ta:14.1},
     {id:'184',name:'제주',lat:33.4996,lng:126.5312,hot:21,trop:47,ta:17.3},
-    {id:'112',name:'인천',lat:37.4772,lng:126.6249},{id:'105',name:'강릉',lat:37.7519,lng:128.8761},
-    {id:'131',name:'청주',lat:36.6424,lng:127.4890},{id:'146',name:'전주',lat:35.8242,lng:127.1480},
-    {id:'101',name:'춘천',lat:37.8813,lng:127.7298},{id:'152',name:'울산',lat:35.5384,lng:129.3114},
-    {id:'155',name:'창원',lat:35.2280,lng:128.6811},{id:'119',name:'수원',lat:37.2636,lng:127.0286},
+    {id:'112',name:'인천',lat:37.4772,lng:126.6249,hot:6,trop:19,ta:13.3},
+    {id:'105',name:'강릉',lat:37.7519,lng:128.8761,hot:20,trop:20,ta:14.9},
+    {id:'131',name:'청주',lat:36.6424,lng:127.4890,hot:27,trop:25,ta:14.5},
+    {id:'146',name:'전주',lat:35.8242,lng:127.1480,hot:23,trop:18,ta:14.6},
+    {id:'101',name:'춘천',lat:37.8813,lng:127.7298,hot:18,trop:9,ta:12.5},
+    {id:'152',name:'울산',lat:35.5384,lng:129.3114,hot:11,trop:13,ta:15.0},
+    {id:'155',name:'창원',lat:35.2280,lng:128.6811,hot:17,trop:18,ta:15.0},
   ];
   const PROXY='https://asos-proxy.rodyinsight.workers.dev';
   const SSP={hot:[15,71],trop:[19,65],ta:[2.3,6.3]}, SVAL={low:0.12,mid:0.5,high:0.95};
@@ -203,7 +206,7 @@ const MAP=(function(){
   const objs={}; // id -> {circle, overlay}
   function badge(c){const h=shownHot(c),el=document.createElement('div');el.className='cbadge';
     if(h==null){el.style.cssText+='width:30px;height:30px;background:#7587a8;font-size:9px';el.textContent='…';}
-    else{const sz=30+Math.min(30,h*0.5);el.style.width=sz+'px';el.style.height=sz+'px';el.style.background=colorForHot(h);el.style.fontSize=(h>=100?12:15)+'px';el.innerHTML=`${h}<small>${c.name}</small>`;}
+    else{const sz=30+Math.min(30,h*0.5);el.style.width=sz+'px';el.style.height=sz+'px';el.style.background=colorForHot(h);el.style.fontSize=(h>=100?13:16)+'px';el.title=c.name;el.innerHTML=`${h}`;}
     el.onclick=()=>{selected=c;panel();};return el;}
   function build(){
     CITIES.forEach(c=>{
@@ -243,11 +246,4 @@ const MAP=(function(){
       build(); bindAI();
       $('mode').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('mode').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=b.dataset.m;$('scen').style.display=mode==='2100'?'flex':'none';refresh();if(selected)panel();}));
       $('scen').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('scen').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');scen=b.dataset.s;refresh();if(selected)panel();}));
-      (async()=>{for(const c of CITIES){if(c.hot!=null)continue;try{const r=await fetch(`${PROXY}/climate?stnIds=${c.id}&years=2019,2020,2021,2022,2023,2024`);const d=await r.json();if(d.avg){c.hot=Math.round(d.avg.hot33);c.trop=Math.round(d.avg.tropical);c.ta=d.avg.tavg;refresh();}}catch(e){}await new Promise(res=>setTimeout(res,250));}})();
-    });
-  }
-  return { init };
-})();
-</script>
-</body>
-</html>
+      (async()=>{for(const c of CITIES){if(c.hot!=null)continue;try{const r=await fetch(`${PROXY}/climate?stnIds=${c.id}&years=2019,2020,2021,2022,2023,2024`);const d=await r.json();if(d.avg){c.hot=Math.round(d.avg.hot33);c.trop=Math.round(d.avg.tropical);c.ta=d.avg.tavg;refresh();}}catch(e)

@@ -136,9 +136,9 @@
   </section>
 </div>
 
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=22c150dc7ff5eaaa78bdad3890a3b969&autoload=false"></script>
 <script>
 const $=id=>document.getElementById(id);
+const KAKAO_KEY='22c150dc7ff5eaaa78bdad3890a3b969';
 function showTab(n){
   $('act1').classList.toggle('on',n===1); $('act2').classList.toggle('on',n===2);
   $('t1').classList.toggle('on',n===1); $('t2').classList.toggle('on',n===2);
@@ -239,15 +239,22 @@ const MAP=(function(){
     if(c&&c.hot!=null){const hi=Math.round(c.hot+lerp(SSP.hot[0],SSP.hot[1],SVAL.high));m=`${c.name}은 지금 폭염이 한 해 ${c.hot}일이에요. 고탄소로 가면 2100년엔 최대 ${hi}일까지 늘 수 있어요. 더위는 지형마다 달라요 — 대구는 분지라 폭염이 많고, 부산·제주는 바다 덕에 폭염은 적지만 열대야가 많죠.`;}
     else m=`지도에서 우리 동네 배지를 먼저 눌러보세요.`;
     const o=$('aiout');o.textContent='🤖 '+m;o.classList.add('show');$('aiq').value='';}
+  function start(){
+    map=new kakao.maps.Map($('kmap'),{center:new kakao.maps.LatLng(36.2,127.9),level:13,mapTypeId:kakao.maps.MapTypeId.HYBRID});
+    build(); bindAI();
+    $('mode').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('mode').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=b.dataset.m;$('scen').style.display=mode==='2100'?'flex':'none';refresh();if(selected)panel();}));
+    $('scen').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('scen').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');scen=b.dataset.s;refresh();if(selected)panel();}));
+    (async()=>{for(const c of CITIES){if(c.hot!=null)continue;try{const r=await fetch(`${PROXY}/climate?stnIds=${c.id}&years=2019,2020,2021,2022,2023,2024`);const d=await r.json();if(d.avg){c.hot=Math.round(d.avg.hot33);c.trop=Math.round(d.avg.tropical);c.ta=d.avg.tavg;refresh();}}catch(e){}await new Promise(res=>setTimeout(res,250));}})();
+  }
+  function fail(msg){ $('kmap').innerHTML='<div style="padding:30px;color:#8ea0c2;text-align:center;line-height:1.7">'+(msg||'카카오 지도를 불러오지 못했어요.')+'<br><span style="font-size:11px;color:#6f80a6">도메인 등록 / 네트워크·확장프로그램 차단을 확인해주세요.</span></div>'; }
   function init(){
-    if(typeof kakao==='undefined'||!kakao.maps){ $('kmap').innerHTML='<div style="padding:30px;color:#8ea0c2;text-align:center">카카오 지도를 불러오지 못했어요. 도메인 등록(officealone00.github.io 또는 localhost)을 확인해주세요.</div>'; return; }
-    kakao.maps.load(()=>{
-      map=new kakao.maps.Map($('kmap'),{center:new kakao.maps.LatLng(36.2,127.9),level:13,mapTypeId:kakao.maps.MapTypeId.HYBRID});
-      build(); bindAI();
-      $('mode').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('mode').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=b.dataset.m;$('scen').style.display=mode==='2100'?'flex':'none';refresh();if(selected)panel();}));
-      $('scen').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('scen').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');scen=b.dataset.s;refresh();if(selected)panel();}));
-      (async()=>{for(const c of CITIES){if(c.hot!=null)continue;try{const r=await fetch(`${PROXY}/climate?stnIds=${c.id}&years=2019,2020,2021,2022,2023,2024`);const d=await r.json();if(d.avg){c.hot=Math.round(d.avg.hot33);c.trop=Math.round(d.avg.tropical);c.ta=d.avg.tavg;refresh();}}catch(e){}await new Promise(res=>setTimeout(res,250));}})();
-    });
+    if(window.kakao&&kakao.maps&&kakao.maps.Map){ start(); return; }
+    if(window.kakao&&kakao.maps&&kakao.maps.load){ kakao.maps.load(start); return; }
+    const s=document.createElement('script');
+    s.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey='+KAKAO_KEY+'&autoload=false';
+    s.onload=()=>{ try{ kakao.maps.load(start); }catch(e){ fail('지도 초기화 실패: '+e.message); } };
+    s.onerror=()=>fail('카카오 SDK를 불러오지 못했어요 (네트워크 또는 도메인 차단).');
+    document.head.appendChild(s);
   }
   return { init };
 })();

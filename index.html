@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기후 타임머신 — 측우기에서 2100년 우리 동네까지</title>
+<style>
+  :root{ --bg:#0a1120; --panel:#121d34; --panel2:#0d1730; --line:#22304f; --txt:#eaf0ff; --sub:#8ea0c2;
+    --gold:#e9c46a; --hot:#ff3b30; --cool:#3aa0e0; --good:#22c55e; --warn:#f5a623; --accent:#7c5cff; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;color:var(--txt);
+    background:radial-gradient(900px 520px at 18% -10%,#1a2747 0%,transparent 55%),var(--bg);line-height:1.6}
+  .wrap{max-width:1000px;margin:0 auto;padding:18px 16px 50px}
+  .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h1{font-size:21px;margin:0;letter-spacing:-.4px}
+  .tag{font-size:11px;color:#0a1120;background:var(--gold);border-radius:20px;padding:3px 9px;font-weight:800}
+  .sub{color:var(--sub);font-size:13px;margin:5px 0 14px}
+  .tabs{display:flex;gap:8px;margin-bottom:16px}
+  .tabs button{flex:1;border:1px solid var(--line);background:#0e1830;color:var(--sub);border-radius:13px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;transition:.15s}
+  .tabs button.on{background:linear-gradient(180deg,#eef3ff,#cdd9f5);color:#0a1120;border-color:transparent}
+  .tabs button small{display:block;font-weight:600;font-size:11px;opacity:.8}
+  section{display:none} section.on{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:linear-gradient(165deg,rgba(18,29,52,.92),rgba(13,23,48,.92));border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:16px;box-shadow:0 14px 40px rgba(0,0,0,.34)}
+  .yearbig{font-size:28px;font-weight:900;letter-spacing:-1px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .yearbig small{font-size:13px;color:var(--sub);font-weight:600}
+  .era-name{color:var(--gold);font-weight:800}
+  input[type=range]{width:100%;accent-color:var(--gold);height:5px;margin:13px 0 4px}
+  .ticks{display:flex;justify-content:space-between;font-size:10.5px;color:var(--sub);gap:2px}
+  .ticks span{flex:1;text-align:center;cursor:pointer;line-height:1.3}.ticks span.on{color:var(--gold);font-weight:800}
+  .stage{display:grid;grid-template-columns:260px 1fr;gap:14px;margin-top:14px}
+  @media(max-width:760px){.stage{grid-template-columns:1fr}}
+  .tool{text-align:center} svg.measure{width:140px;height:150px}
+  .method{font-size:12px;color:var(--sub)} .method b{color:var(--txt)}
+  .stat2{display:flex;gap:8px;margin-top:8px}
+  .stat2 .s{flex:1;background:#0d1730;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+  .stat2 .k{font-size:10px;color:var(--sub)} .stat2 .v{font-size:13px;font-weight:800}
+  .book{border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,.06);margin-bottom:10px}
+  .book.hist{background:linear-gradient(180deg,rgba(233,180,76,.1),rgba(233,180,76,.02));border-color:#6b5326}
+  .book.sci{background:linear-gradient(180deg,rgba(58,160,224,.1),rgba(58,160,224,.02));border-color:#2c5a7a}
+  .book .h{font-size:12.5px;font-weight:800;margin-bottom:5px} .book.hist .h{color:var(--gold)} .book.sci .h{color:var(--cool)}
+  .book p{margin:0;font-size:13.5px;color:#e7ddf5}
+  .saryo{margin-top:9px;border-left:3px solid var(--gold);padding:6px 10px;background:rgba(233,180,76,.06);border-radius:0 8px 8px 0;font-size:12.5px;color:#f0e2c4;font-style:italic}
+  .saryo b{display:block;font-style:normal;color:var(--gold);font-size:10.5px;margin-top:3px}
+  .cta{margin-top:16px;text-align:center}
+  .cta .msg{font-size:14px;color:#e7ddf5;margin-bottom:10px}
+  .cta button{border:none;background:linear-gradient(90deg,var(--hot),var(--accent));color:#fff;border-radius:13px;padding:13px 22px;font-size:15px;font-weight:800;cursor:pointer}
+  .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg button{border:none;background:#0e1830;color:var(--sub);padding:9px 15px;font-size:13.5px;font-weight:800;cursor:pointer}
+  .seg button.on{background:#eaf0ff;color:#0a1120}
+  .scen{display:flex;gap:6px;align-items:center}.scen .lab{font-size:12px;color:var(--sub);font-weight:700}
+  .scen button{border:1px solid var(--line);background:#0e1830;color:var(--txt);border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .scen button[data-s="low"].on{background:var(--good);color:#06281f;border-color:transparent}
+  .scen button[data-s="mid"].on{background:var(--warn);color:#3a2c00;border-color:transparent}
+  .scen button[data-s="high"].on{background:var(--hot);color:#fff;border-color:transparent}
+  .summary{margin-left:auto;text-align:right}.summary .k{font-size:11px;color:var(--sub)}.summary .v{font-size:22px;font-weight:900}
+  .grid2{display:grid;grid-template-columns:1.25fr .9fr;gap:16px}@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  #kmap{width:100%;height:520px;border-radius:12px;background:#0e2036}
+  .legend{display:flex;gap:10px;justify-content:center;font-size:11px;color:var(--sub);margin-top:8px;flex-wrap:wrap}
+  .legend i{width:11px;height:11px;border-radius:50%;display:inline-block;vertical-align:-1px;margin-right:3px}
+  .city{font-size:21px;font-weight:800}.muted{font-size:12px;color:var(--sub)}
+  .cmp{display:flex;gap:10px;margin-top:12px}.cmp .col{flex:1;background:#0d1730;border:1px solid var(--line);border-radius:12px;padding:11px;text-align:center}
+  .cmp .col.future{background:rgba(255,90,77,.1);border-color:#5a2a26}.cmp h4{margin:0 0 8px;font-size:12px;color:var(--sub)}
+  .cmp .row{display:flex;justify-content:space-between;font-size:12.5px;margin:5px 0}
+  .grade{margin-top:12px;text-align:center;font-weight:800;font-size:15px;border-radius:12px;padding:10px}
+  .pc{margin-top:12px;background:#0d1730;border:1px dashed #3a4a6a;border-radius:12px;padding:12px;font-size:13px}.pc .who{font-size:11px;color:var(--accent);font-weight:800;margin-bottom:4px}
+  .ai{margin-top:14px;display:flex;gap:8px}.ai input{flex:1;border:1px solid var(--line);background:#0e1830;color:var(--txt);border-radius:11px;padding:11px 13px;font-size:13.5px;outline:none}
+  .ai button{border:none;background:var(--accent);color:#fff;border-radius:11px;padding:11px 15px;font-weight:800;cursor:pointer}
+  .aiout{margin-top:8px;background:#0d1730;border:1px solid var(--line);border-radius:11px;padding:11px 12px;font-size:13px;display:none}.aiout.show{display:block}
+  .src{font-size:11px;color:#6f80a6;margin-top:14px;line-height:1.8}
+  .pill{display:inline-block;background:#121d34;border:1px solid var(--line);border-radius:20px;padding:3px 10px;margin:2px;color:var(--sub)}
+  .cbadge{transform:translate(-50%,-50%);cursor:pointer;font-weight:800;color:#fff;border-radius:999px;border:2px solid rgba(255,255,255,.9);box-shadow:0 3px 10px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+  .cbadge small{font-size:8.5px;font-weight:700}
+  .note{font-size:11.5px;color:var(--warn);background:rgba(245,166,35,.1);border:1px solid #5a4a1f;border-radius:10px;padding:8px 11px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head"><h1>🌡️ 기후 타임머신</h1><span class="tag">측우기 → 2100 우리 동네</span></div>
+  <p class="sub">조선의 측우기부터 오늘의 위성까지 — 우리 조상이 비를 어떻게 쟀는지 보고, 그 데이터로 <b>우리 동네의 2100년 미래</b>를 직접 바꿔보세요.</p>
+  <div class="tabs">
+    <button id="t1" class="on" onclick="showTab(1)">① 측정의 역사 <small>측우기는 어떻게 기후를 알려줄까</small></button>
+    <button id="t2" onclick="showTab(2)">② 우리 동네 2100 <small>위성지도 위, 내 선택이 미래를 바꾼다</small></button>
+  </div>
+
+  <!-- ACT 1 -->
+  <section id="act1" class="on">
+    <div class="card">
+      <div class="yearbig"><span id="year">삼국시대</span><small> · <span class="era-name" id="eraName">—</span></small></div>
+      <input id="slider" type="range" min="0" max="3" step="1" value="0">
+      <div class="ticks" id="ticks">
+        <span data-i="0" class="on">삼국시대<br>비를 '말'로</span><span data-i="1">1442 세종<br>측우기</span>
+        <span data-i="2">1871 고성<br>실측 mm</span><span data-i="3">현재<br>자동관측</span>
+      </div>
+      <div class="stage">
+        <div class="tool"><svg class="measure" id="gauge" viewBox="0 0 100 150"></svg>
+          <div class="method" id="method"></div>
+          <div class="stat2"><div class="s"><div class="k">기록 방식</div><div class="v" id="recType">—</div></div>
+            <div class="s"><div class="k">정밀도</div><div class="v" id="prec">—</div></div></div></div>
+        <div>
+          <div class="book hist"><div class="h">📜 역사책</div><p id="hist">—</p><div class="saryo" id="saryo"></div></div>
+          <div class="book sci"><div class="h">🔬 과학책</div><p id="sci">—</p></div>
+        </div>
+      </div>
+      <div class="cta"><div class="msg">조상의 <b>긴 기록</b>이 있어 우리는 "기후가 변한다"를 압니다. 그럼 — <b>우리 동네의 미래</b>는?</div>
+        <button onclick="showTab(2)">우리 동네 2100 보러가기 →</button></div>
+      <div class="src">출처: 기상청 <b>한국 기상기록집❶</b>(삼국사기) · <b>조선왕조실록</b>(세종실록 1442) · 한국수자원공사 <b>조선시대 측우기</b>(고성) · 종관기상관측(ASOS)</div>
+    </div>
+  </section>
+
+  <!-- ACT 2 -->
+  <section id="act2">
+    <div class="card">
+      <div class="note" id="kmapNote">위성지도는 등록된 도메인에서만 보여요. 파일을 그대로 열면 회색일 수 있어요 → GitHub Pages(officealone00.github.io)에 올리거나 카카오 콘솔에 localhost를 등록하면 떠요.</div>
+      <div class="controls">
+        <div class="seg" id="mode"><button data-m="now" class="on">지금</button><button data-m="2100">2100년</button></div>
+        <div class="scen" id="scen" style="display:none"><span class="lab">미래:</span>
+          <button data-s="low">🌳 저탄소</button><button data-s="mid" class="on">😐 중간</button><button data-s="high">🔥 고탄소</button></div>
+        <div class="summary"><div class="k">전국 평균 폭염일수</div><div class="v"><span id="natHot">–</span><span style="font-size:13px">일</span></div></div>
+      </div>
+      <div class="grid2">
+        <div>
+          <div id="kmap"></div>
+          <div class="legend"><span><i style="background:#3aa0e0"></i>0~10일</span><span><i style="background:#22c55e"></i>10~20</span><span><i style="background:#f5a623"></i>20~35</span><span><i style="background:#ff7a2a"></i>35~60</span><span><i style="background:#ff3b30"></i>60일+</span></div>
+        </div>
+        <div id="panel">
+          <div class="city">전국을 만져보세요 🛰️</div>
+          <div class="muted" style="margin-top:6px">위성지도 위 도시 배지를 누르면 지금과 2100년을 비교해 줘요. <b>2100 → 고탄소</b>를 누르면 위성지도 위로 폭염이 빨갛게 번져요.</div>
+          <div class="ai"><input id="aiq" placeholder="기후 도우미에게 물어보기"><button id="aisend">물어보기</button></div>
+          <div class="aiout" id="aiout"></div>
+          <div class="src"><span class="pill">현재=ASOS 실측</span><span class="pill">미래=SSP 인용</span><br>국립기상과학원 남한상세 SSP(폭염 +15~71일 등) · 선택→미래 보간은 교육용 모델 · 지도: 카카오 스카이뷰</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c5fd34455bbe0b7858d63d08e1ddb74a&autoload=false"></script>
+<script>
+const $=id=>document.getElementById(id);
+function showTab(n){
+  $('act1').classList.toggle('on',n===1); $('act2').classList.toggle('on',n===2);
+  $('t1').classList.toggle('on',n===1); $('t2').classList.toggle('on',n===2);
+  if(n===2 && !window._mi){ window._mi=true; MAP.init(); }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ===== ACT 1 ===== */
+(function(){
+  const ERAS=[
+    {y:'삼국시대',era:"비를 '말'로 적던 시대",svg:'eye',rec:'정성적(말)',prec:'없음',method:"관원이 보고 <b>글로 기록</b>",
+     hist:"삼국시대엔 비·가뭄·우박을 글로만 적었어요. 양을 잰 게 아니라 \"큰 비가 왔다\"처럼 겪은 일을 서술했죠.",
+     saryo:'"6월에 큰 비가 열흘이나 내렸다. 한강 물이 넘쳐 민가가 떠내려가고 물에 잠겼다."', src:'— 《삼국사기》 (기상청 한국 기상기록집❶)',
+     sci:'문제는 "큰 비"가 <b>얼마나</b>인지 모른다는 것 — 시대·지역끼리 비교가 불가능해요.'},
+    {y:'1442',era:'세종 — 측우기 발명',svg:'gauge',rec:'정량(숫자)',prec:'척·촌·분',method:"<b>측우기</b>로 수심 측정",
+     hist:"세종 24년(1442), 측우기 제도를 만들어 전국이 <b>같은 기구·같은 자</b>로 비의 깊이를 재게 했어요.",
+     saryo:'"쇠를 주조하여 측우기라 하고, 주척으로 물의 깊이를 척·촌·분으로 재어 보고하라." — 임금이 그대로 따랐다.', src:'— 세종실록 1442.6.15',
+     sci:'드디어 비를 <b>숫자</b>로! 같은 규격으로 재니 지역·시대끼리 <b>비교 가능</b>해졌어요 — 과학의 탄생.'},
+    {y:'1871·73',era:'고성 — 측우기 실측',svg:'gauge',rec:'정량(mm)',prec:'1분=2mm',method:"측우기 수심 → mm",
+     hist:"경상도 고성에 비가 올 때마다 측우기 수심을 잰 기록 <b>26건</b>이 실제 강우량(mm)과 함께 남아 있어요.",
+     saryo:'"이달 비가 내려… 측우기 강우량은 1촌 2분(=24mm)이었다." (1873.9 고성)', src:'— 한국수자원공사 조선시대 측우기',
+     sci:'진짜 측정값이에요. 최대 <b>152mm</b>(1871.8.11)까지! 1분=2mm가 데이터로 확인돼요.'},
+    {y:'현재',era:'자동관측 + 위성',svg:'aws',rec:'정량(자동)',prec:'0.5mm·1분',method:"<b>자동</b> 우량계+위성",
+     hist:"지금은 전국 수백 개 자동관측소(AWS)와 천리안 위성이 1분 단위로 비를 감시해요.",
+     saryo:'"서울(108) 자동관측, 실시간 수집." — 이 실측이 ②우리 동네 2100의 출발점이에요.', src:'— 기상청 종관기상관측(ASOS)',
+     sci:'측정 원리는 <b>600년째 그대로</b> — 도구만 진화했어요. 긴 기록을 이으면 기후변화가 보입니다.'},
+  ];
+  const sl=$('slider');
+  function gauge(kind){let s='';
+    if(kind==='eye')s=`<circle cx="50" cy="58" r="30" fill="none" stroke="#b9a9d4" stroke-width="3"/><ellipse cx="50" cy="74" rx="36" ry="23" fill="none" stroke="#e9c46a" stroke-width="3"/><circle cx="50" cy="74" r="12" fill="#e9c46a"/><circle cx="50" cy="74" r="4.5" fill="#10182b"/><text x="50" y="120" text-anchor="middle" font-size="11" fill="#8ea0c2">눈으로 보고 붓으로</text>`;
+    else if(kind==='aws')s=`<rect x="47" y="38" width="6" height="70" fill="#7a6a9a"/><rect x="31" y="33" width="38" height="6" rx="3" fill="#3aa0e0"/><circle cx="50" cy="25" r="9" fill="#22c55e"/><path d="M28 108 h44" stroke="#6b5a45" stroke-width="3"/>${[22,40,58,76].map(x=>`<line x1="${x}" y1="116" x2="${x-4}" y2="126" stroke="#3aa0e0" stroke-width="2"/>`).join('')}<text x="50" y="142" text-anchor="middle" font-size="11" fill="#8ea0c2">자동 우량계+위성</text>`;
+    else{const t=18,bt=112,h=bt-t,wy=bt-h*0.6;s=`<ellipse cx="50" cy="118" rx="28" ry="5" fill="#1d2a44"/><rect x="33" y="${t}" width="34" height="${h}" rx="6" fill="#13203a" stroke="#c9a24b" stroke-width="2.5"/><rect x="35" y="${wy}" width="30" height="${bt-wy}" rx="4" fill="#3aa0e0" opacity=".82"/><text x="50" y="138" text-anchor="middle" font-size="11" fill="#c9a24b">측우기 — 수심을 잰다</text>`;}
+    $('gauge').innerHTML=s;}
+  function upd(){const e=ERAS[+sl.value];$('year').textContent=e.y;$('eraName').textContent=e.era;$('recType').textContent=e.rec;$('prec').textContent=e.prec;
+    $('method').innerHTML=e.method;$('hist').innerHTML=e.hist;$('sci').innerHTML=e.sci;$('saryo').innerHTML='<span>'+e.saryo+'</span><b>'+e.src+'</b>';gauge(e.svg);
+    document.querySelectorAll('#ticks span').forEach(s=>s.classList.toggle('on',+s.dataset.i===+sl.value));}
+  sl.addEventListener('input',upd);document.querySelectorAll('#ticks span').forEach(s=>s.addEventListener('click',()=>{sl.value=s.dataset.i;upd();}));upd();
+})();
+
+/* ===== ACT 2: 카카오 위성지도 ===== */
+const MAP=(function(){
+  const CITIES=[
+    {id:'108',name:'서울',lat:37.5665,lng:126.9780,hot:17,trop:22,ta:13.8},
+    {id:'159',name:'부산',lat:35.1796,lng:129.0756,hot:7,trop:27,ta:15.8},
+    {id:'143',name:'대구',lat:35.8714,lng:128.6014,hot:35,trop:18,ta:15.0},
+    {id:'156',name:'광주',lat:35.1595,lng:126.8526,hot:19,trop:19,ta:15.1},
+    {id:'133',name:'대전',lat:36.3504,lng:127.3845,hot:24,trop:17,ta:14.1},
+    {id:'184',name:'제주',lat:33.4996,lng:126.5312,hot:21,trop:47,ta:17.3},
+    {id:'112',name:'인천',lat:37.4772,lng:126.6249},{id:'105',name:'강릉',lat:37.7519,lng:128.8761},
+    {id:'131',name:'청주',lat:36.6424,lng:127.4890},{id:'146',name:'전주',lat:35.8242,lng:127.1480},
+    {id:'101',name:'춘천',lat:37.8813,lng:127.7298},{id:'152',name:'울산',lat:35.5384,lng:129.3114},
+    {id:'155',name:'창원',lat:35.2280,lng:128.6811},{id:'119',name:'수원',lat:37.2636,lng:127.0286},
+  ];
+  const PROXY='https://asos-proxy.rodyinsight.workers.dev';
+  const SSP={hot:[15,71],trop:[19,65],ta:[2.3,6.3]}, SVAL={low:0.12,mid:0.5,high:0.95};
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const colorForHot=h=>h<10?'#3aa0e0':h<20?'#22c55e':h<35?'#f5a623':h<60?'#ff7a2a':'#ff3b30';
+  let mode='now',scen='mid',selected=null,map=null;
+  const futureOf=c=>{const s=SVAL[scen];return{hot:Math.round(c.hot+lerp(SSP.hot[0],SSP.hot[1],s)),trop:Math.round(c.trop+lerp(SSP.trop[0],SSP.trop[1],s)),ta:Math.round((c.ta+lerp(SSP.ta[0],SSP.ta[1],s))*10)/10};};
+  const shownHot=c=>c.hot==null?null:(mode==='2100'?futureOf(c).hot:c.hot);
+  const gradeOf=s=>s<=0.2?['A','🌳 초록 도시','#22c55e']:s<=0.45?['B','🍃 살 만한 도시','#84cc16']:s<=0.7?['C','🥵 더워진 도시','#f5a623']:['F','🔥 끓는 도시','#ff3b30'];
+  const objs={}; // id -> {circle, overlay}
+  function badge(c){const h=shownHot(c),el=document.createElement('div');el.className='cbadge';
+    if(h==null){el.style.cssText+='width:30px;height:30px;background:#7587a8;font-size:9px';el.textContent='…';}
+    else{const sz=30+Math.min(30,h*0.5);el.style.width=sz+'px';el.style.height=sz+'px';el.style.background=colorForHot(h);el.style.fontSize=(h>=100?12:15)+'px';el.innerHTML=`${h}<small>${c.name}</small>`;}
+    el.onclick=()=>{selected=c;panel();};return el;}
+  function build(){
+    CITIES.forEach(c=>{
+      const pos=new kakao.maps.LatLng(c.lat,c.lng), h=shownHot(c);
+      const circle=new kakao.maps.Circle({center:pos,radius:32000,strokeWeight:0,fillColor:h==null?'#7587a8':colorForHot(h),fillOpacity:h==null?0.12:0.34});
+      circle.setMap(map);
+      const overlay=new kakao.maps.CustomOverlay({position:pos,content:badge(c),yAnchor:0.5,xAnchor:0.5,zIndex:5});
+      overlay.setMap(map); objs[c.id]={circle,overlay};
+    });
+  }
+  function refresh(){
+    let sum=0,n=0;
+    CITIES.forEach(c=>{const o=objs[c.id];if(!o)return;const h=shownHot(c);
+      o.circle.setOptions({fillColor:h==null?'#7587a8':colorForHot(h),fillOpacity:h==null?0.12:0.34,radius:32000+(h?Math.min(20000,h*350):0)});
+      o.overlay.setContent(badge(c)); if(h!=null){sum+=h;n++;}});
+    $('natHot').textContent=n?Math.round(sum/n):'–';
+  }
+  function panel(){const c=selected;if(!c)return;
+    if(c.hot==null){$('panel').innerHTML=`<div class="city">${c.name}</div><div class="muted">실측 불러오는 중…</div>`;return;}
+    const f=futureOf(c),[g,gl,gc]=gradeOf(SVAL[scen]);
+    $('panel').innerHTML=`<div class="city">📍 ${c.name}</div><div class="muted">현재 = ASOS 실측(2019~2024 평균)</div>
+      <div class="cmp"><div class="col"><h4>지금</h4><div class="row"><span>🔥 폭염</span><b>${c.hot}일</b></div><div class="row"><span>🌙 열대야</span><b>${c.trop}일</b></div><div class="row"><span>🌡️ 기온</span><b>${c.ta}°</b></div></div>
+      <div class="col future"><h4>2100 (${scen==='low'?'저탄소':scen==='high'?'고탄소':'중간'})</h4><div class="row"><span>🔥 폭염</span><b style="color:var(--hot)">${f.hot}일</b></div><div class="row"><span>🌙 열대야</span><b style="color:var(--hot)">${f.trop}일</b></div><div class="row"><span>🌡️ 기온</span><b style="color:var(--hot)">${f.ta}°</b></div></div></div>
+      <div class="grade" style="background:${gc}22;color:${gc}">2100 ${c.name} · ${g} ${gl}</div>
+      <div class="pc"><div class="who">💌 2100년 ${c.name}에서 온 엽서</div>${SVAL[scen]<=0.45?`"네가 저탄소를 골라준 덕에 여름이 아직 견딜 만해. 폭염 ${f.hot}일. 고마워 🌳"`:SVAL[scen]<=0.7?`"여름 폭염이 ${f.hot}일로 길어졌어. 조금만 더 도와줄래? 🌤️"`:`"폭염 ${f.hot}일, 열대야 ${f.trop}일… 너무 더워. 선택을 바꿔줘 🥵"`}</div>
+      <div class="ai"><input id="aiq" placeholder="기후 도우미에게 물어보기"><button id="aisend">물어보기</button></div><div class="aiout" id="aiout"></div>`;
+    bindAI();}
+  function bindAI(){const s=$('aisend');if(!s)return;s.onclick=ans;$('aiq').onkeydown=e=>{if(e.key==='Enter')ans();};}
+  function ans(){const q=$('aiq').value.trim();if(!q)return;let m;const c=selected;
+    if(c&&c.hot!=null){const hi=Math.round(c.hot+lerp(SSP.hot[0],SSP.hot[1],SVAL.high));m=`${c.name}은 지금 폭염이 한 해 ${c.hot}일이에요. 고탄소로 가면 2100년엔 최대 ${hi}일까지 늘 수 있어요. 더위는 지형마다 달라요 — 대구는 분지라 폭염이 많고, 부산·제주는 바다 덕에 폭염은 적지만 열대야가 많죠.`;}
+    else m=`지도에서 우리 동네 배지를 먼저 눌러보세요.`;
+    const o=$('aiout');o.textContent='🤖 '+m;o.classList.add('show');$('aiq').value='';}
+  function init(){
+    if(typeof kakao==='undefined'||!kakao.maps){ $('kmap').innerHTML='<div style="padding:30px;color:#8ea0c2;text-align:center">카카오 지도를 불러오지 못했어요. 도메인 등록(officealone00.github.io 또는 localhost)을 확인해주세요.</div>'; return; }
+    kakao.maps.load(()=>{
+      map=new kakao.maps.Map($('kmap'),{center:new kakao.maps.LatLng(36.2,127.9),level:13,mapTypeId:kakao.maps.MapTypeId.HYBRID});
+      build(); bindAI();
+      $('mode').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('mode').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mode=b.dataset.m;$('scen').style.display=mode==='2100'?'flex':'none';refresh();if(selected)panel();}));
+      $('scen').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{$('scen').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');scen=b.dataset.s;refresh();if(selected)panel();}));
+      (async()=>{for(const c of CITIES){if(c.hot!=null)continue;try{const r=await fetch(`${PROXY}/climate?stnIds=${c.id}&years=2019,2020,2021,2022,2023,2024`);const d=await r.json();if(d.avg){c.hot=Math.round(d.avg.hot33);c.trop=Math.round(d.avg.tropical);c.ta=d.avg.tavg;refresh();}}catch(e){}await new Promise(res=>setTimeout(res,250));}})();
+    });
+  }
+  return { init };
+})();
+</script>
+</body>
+</html>

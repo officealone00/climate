@@ -67,6 +67,9 @@
   .pc{margin-top:12px;background:#0d1730;border:1px dashed #3a4a6a;border-radius:12px;padding:12px;font-size:13px}.pc .who{font-size:11px;color:var(--accent);font-weight:800;margin-bottom:4px}
   .ai{margin-top:14px;display:flex;gap:8px}.ai input{flex:1;border:1px solid var(--line);background:#0e1830;color:var(--txt);border-radius:11px;padding:11px 13px;font-size:13.5px;outline:none}
   .ai button{border:none;background:var(--accent);color:#fff;border-radius:11px;padding:11px 15px;font-weight:800;cursor:pointer}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{font-size:11.5px;border:1px solid var(--line);background:#0e1830;color:var(--sub);border-radius:14px;padding:6px 11px;cursor:pointer;transition:.13s}
+  .chip:hover{border-color:var(--accent);color:#fff}
   .aiout{margin-top:8px;background:#0d1730;border:1px solid var(--line);border-radius:11px;padding:11px 12px;font-size:13px;display:none}.aiout.show{display:block}
   .src{font-size:11px;color:#6f80a6;margin-top:14px;line-height:1.8}
   .pill{display:inline-block;background:#121d34;border:1px solid var(--line);border-radius:20px;padding:3px 10px;margin:2px;color:var(--sub)}
@@ -126,7 +129,8 @@
         <div id="panel">
           <div class="city">전국을 만져보세요 🛰️</div>
           <div class="muted" style="margin-top:6px">위성지도 위 도시 배지를 누르면 지금과 2100년을 비교해 줘요. <b>2100 → 고탄소</b>를 누르면 위성지도 위로 폭염이 빨갛게 번져요.</div>
-          <div class="ai"><input id="aiq" placeholder="기후 도우미에게 물어보기"><button id="aisend">물어보기</button></div>
+          <div class="ai"><input id="aiq" placeholder="예: 우리 동네 2100년에 살 만해?"><button id="aisend">물어보기</button></div>
+          <div class="chips"><button class="chip">2100년에 살 만해?</button><button class="chip">왜 더워져?</button><button class="chip">폭염 줄이려면?</button><button class="chip">열대야가 뭐야?</button></div>
           <div class="aiout" id="aiout"></div>
           <div class="src"><span class="pill">현재=ASOS 실측</span><span class="pill">미래=SSP 인용</span><br>국립기상과학원 남한상세 SSP(폭염 +15~71일 등) · 선택→미래 보간은 교육용 모델 · 지도: 카카오 스카이뷰</div>
         </div>
@@ -231,9 +235,10 @@ const MAP=(function(){
       <div class="col future"><h4>2100 (${scen==='low'?'저탄소':scen==='high'?'고탄소':'중간'})</h4><div class="row"><span>🔥 폭염</span><b style="color:var(--hot)">${f.hot}일</b></div><div class="row"><span>🌙 열대야</span><b style="color:var(--hot)">${f.trop}일</b></div><div class="row"><span>🌡️ 기온</span><b style="color:var(--hot)">${f.ta}°</b></div></div></div>
       <div class="grade" style="background:${gc}22;color:${gc}">2100 ${c.name} · ${g} ${gl}</div>
       <div class="pc"><div class="who">💌 2100년 ${c.name}에서 온 엽서</div>${SVAL[scen]<=0.45?`"네가 저탄소를 골라준 덕에 여름이 아직 견딜 만해. 폭염 ${f.hot}일. 고마워 🌳"`:SVAL[scen]<=0.7?`"여름 폭염이 ${f.hot}일로 길어졌어. 조금만 더 도와줄래? 🌤️"`:`"폭염 ${f.hot}일, 열대야 ${f.trop}일… 너무 더워. 선택을 바꿔줘 🥵"`}</div>
-      <div class="ai"><input id="aiq" placeholder="기후 도우미에게 물어보기"><button id="aisend">물어보기</button></div><div class="aiout" id="aiout"></div>`;
+      <div class="ai"><input id="aiq" placeholder="예: ${c.name} 2100년에 살 만해?"><button id="aisend">물어보기</button></div><div class="chips"><button class="chip">2100년에 살 만해?</button><button class="chip">왜 더워져?</button><button class="chip">폭염 줄이려면?</button></div><div class="aiout" id="aiout"></div>`;
     bindAI();}
-  function bindAI(){const s=$('aisend');if(!s)return;s.onclick=ans;$('aiq').onkeydown=e=>{if(e.key==='Enter')ans();};}
+  function bindAI(){const s=$('aisend');if(!s)return;s.onclick=ans;$('aiq').onkeydown=e=>{if(e.key==='Enter')ans();};
+    document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{$('aiq').value=b.textContent;ans();});}
   async function ans(){
     const q=$('aiq').value.trim(); if(!q)return;
     const c=selected, o=$('aiout'); o.classList.add('show');

@@ -155,8 +155,8 @@
   <p class="sub">조선의 측우기부터 오늘의 위성까지 — 우리 조상이 비를 어떻게 쟀는지 보고, 그 데이터로 <b>우리 동네의 2100년 미래</b>를 직접 바꿔보세요.</p>
   <div class="tabs">
     <button id="t1" class="on" onclick="showTab(1)">① 측정의 역사 <small>측우기는 어떻게 기후를 알려줄까</small></button>
-    <button id="t3" onclick="showTab(3)">② 분리수거 챌린지 <small>내 행동이 미래를 정한다</small></button>
-    <button id="t2" onclick="showTab(2)">③ 우리 동네 2100 <small>위성지도 위, 미래를 본다</small></button>
+    <button id="t2" onclick="showTab(2)">② 우리 동네 2100 <small>위성지도 위, 미래를 본다</small></button>
+    <button id="t3" onclick="showTab(3)">③ 분리수거 챌린지 <small>내가 바꾸면 미래도 바뀐다</small></button>
   </div>
 
   <!-- ACT 1: 측정의 역사 — 실록 연도 슬라이더 -->
@@ -193,10 +193,10 @@
         <div class="anchor"><div class="at" style="color:var(--cool)">📏 실측 · 1871·1873 고성</div>
           <p>측우기 수심을 <b>mm로 실측</b>한 기록 26건. 최대 <span class="mm">152mm</span>(1871.8.11, 7촌6분)까지.<br><span style="color:var(--sub)">— 한국수자원공사 조선시대 측우기</span></p></div>
         <div class="anchor"><div class="at" style="color:var(--good)">🛰️ 현재 · 자동관측</div>
-          <p>전국 자동관측소(ASOS)와 위성이 1분 단위로 감시. 이 실측이 <b>③우리 동네 2100</b>의 출발점.<br><button class="qchip" style="margin-top:6px" onclick="showTab(2)">현재 지도 보기 →</button></p></div>
+          <p>전국 자동관측소(ASOS)와 위성이 1분 단위로 감시. 이 실측이 <b>②우리 동네 2100</b>의 출발점.<br><button class="qchip" style="margin-top:6px" onclick="showTab(2)">현재 지도 보기 →</button></p></div>
       </div>
-      <div class="cta"><div class="msg">조상의 <b>긴 기록</b>이 있어 우리는 "기후가 변한다"를 압니다. 그럼 — <b>내 행동</b>으로 미래를 바꿔볼까요?</div>
-        <button onclick="showTab(3)">♻️ 분리수거 챌린지 하러가기 →</button></div>
+      <div class="cta"><div class="msg">조상의 <b>긴 기록</b>이 있어 우리는 "기후가 변한다"를 압니다. 그럼 — <b>우리 동네의 2100년</b>은 어떨까요?</div>
+        <button onclick="showTab(2)">🛰️ 우리 동네 2100 보러가기 →</button></div>
       <div class="src">출처: <b>조선왕조실록</b> 기상·천문·지진 기사(1392~1495, 12,184건 중 연도별 대표) · 기상청 <b>한국 기상기록집❶</b>(삼국사기) · 한국수자원공사 <b>조선시대 측우기</b>(고성) · 종관기상관측(ASOS). 분류 건수는 실록 본문 키워드 집계.</div>
     </div>
   </section>
@@ -212,7 +212,7 @@
       <div class="gamewrap"><canvas id="gcv" width="640" height="360"></canvas></div>
       <div id="gresult"></div>
       <div class="cta" style="margin-top:12px"><button class="gskip-btn" onclick="GAME.toMap()">게임 건너뛰고 지도 보기 →</button></div>
-      <div class="src">분리수거(자원순환)는 온실가스를 줄이는 대표 행동이에요. 이 게임의 성공 수가 ③ 지도의 SSP 탄소 시나리오(저/중/고)로 연결됩니다 — 시나리오 수치는 국립기상과학원 SSP 인용(교육용 모델). CO₂ 절감: 재생 PET는 새 플라스틱보다 온실가스 최대 79%↓(1kg당 약 1.7kg) — 출처 PET Recycling Team(ALPLA), 병 1개(10g) 환산은 교육용 추정.</div>
+      <div class="src">분리수거(자원순환)는 온실가스를 줄이는 대표 행동이에요. 이 게임의 성공 수가 ② 지도의 SSP 탄소 시나리오(저/중/고)로 연결됩니다 — 시나리오 수치는 국립기상과학원 SSP 인용(교육용 모델). CO₂ 절감: 재생 PET는 새 플라스틱보다 온실가스 최대 79%↓(1kg당 약 1.7kg) — 출처 PET Recycling Team(ALPLA), 병 1개(10g) 환산은 교육용 추정.</div>
     </div>
   </section>
 
@@ -239,6 +239,8 @@
           <div class="src"><span class="pill">현재=ASOS 실측</span><span class="pill">미래=SSP 인용</span><br>국립기상과학원 남한상세 SSP(폭염 +15~71일 등) · 선택→미래 보간은 교육용 모델 · 지도: 카카오 스카이뷰</div>
         </div>
       </div>
+      <div class="cta" style="margin-top:14px"><div class="msg">2100년 미래가 이렇게 <b>뜨거워</b>요. 그럼 — <b>내가 직접 바꿔볼까요?</b></div>
+        <button onclick="showTab(3)">♻️ 분리수거 챌린지로 미래 바꾸기 →</button></div>
     </div>
   </section>
 </div>
@@ -360,7 +362,7 @@ const MAP=(function(){
     try{
       const r=await fetch(`${PROXY}/ai`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:qv,context:ctx})});
       const d=await r.json();
-      o.textContent='🤖 '+((d.answer&&d.answer.trim())||fb);
+      o.textContent='🤖 '+((d.answer&&d.answer.trim()&&d.answer.indexOf('미설정')<0)?d.answer.trim():fb);
     }catch(e){ o.textContent='🤖 '+fb; }
   }
   function start(){
@@ -520,7 +522,7 @@ const GAME=(function(){
       <div class="gres-msg">${info[3]}</div>
       <div class="gres-stats">내 선택 = <b>${label}</b> · 2100년 전국 폭염 <b style="color:var(--hot)">+약 ${addHot}일</b> · CO₂ 약 <b>${co2}g</b> 절감*</div>
       <div class="gres-ai" id="gresai">🤖 AI 기후도우미가 살펴보는 중…</div>
-      <div class="gres-note">이 결과가 ③ 지도의 <b>탄소 시나리오</b>를 정해요. 내 행동이 미래를 바꿉니다.
+      <div class="gres-note">이 결과가 ② 지도의 <b>탄소 시나리오</b>를 정해요. 내 행동이 미래를 바꿉니다.
         <span class="gres-cite">폭염 증가폭은 국립기상과학원 SSP(+15~71일) 인용·교육용 모델. *재생 PET는 새 플라스틱보다 온실가스 최대 79%↓ — 출처 PET Recycling Team(ALPLA), 병 1개 10g 환산 교육용 추정.</span></div>
       <div class="gres-btns">
         <button class="gres-go" onclick="GAME.toMap('${scen}')">내 미래 지도 보기 →</button>
@@ -538,7 +540,7 @@ const GAME=(function(){
     const ctx=`학생이 '탄소 줄이기' 게임에서 3번 중 ${succ}번 성공해 ${label} 시나리오를 골랐다. 이 선택이면 2100년 한국 전국 폭염일수가 지금보다 약 ${addHot}일 늘어난다(국립기상과학원 SSP, 21세기말 +15~71일). 분리수거·에너지 절약 같은 작은 행동이 탄소를 줄여 폭염 증가를 늦춘다.`;
     const q=`내 선택(${label})이 2100년 우리 동네 폭염에 어떤 의미인지, 응원과 함께 2문장으로 알려줘.`;
     fetch('https://asos-proxy.rodyinsight.workers.dev/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,context:ctx})})
-      .then(r=>r.json()).then(d=>{el.textContent='🤖 '+((d.answer&&d.answer.trim())||fallbackAI(scen,label,addHot));})
+      .then(r=>r.json()).then(d=>{const a=(d.answer||'').trim();el.textContent='🤖 '+((a&&a.indexOf('미설정')<0)?a:fallbackAI(scen,label,addHot));})
       .catch(()=>{el.textContent='🤖 '+fallbackAI(scen,label,addHot);});
   }
 

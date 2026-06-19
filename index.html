@@ -132,6 +132,9 @@
   .anchor .at{font-size:12px;font-weight:800;margin-bottom:5px}
   .anchor p{margin:0;font-size:11.5px;color:#cdd8ef;line-height:1.55}
   .anchor .mm{color:var(--cool);font-weight:800}
+  .histline{margin-top:14px;background:#0d1730;border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:12px;color:#cdd8ef;line-height:1.7}
+  .histline b{color:var(--txt)} .histline .mm{color:var(--cool);font-weight:800}
+  .srcfoot{margin:22px 2px 0;padding-top:12px;border-top:1px solid var(--line);font-size:10.5px;color:#6f80a6;line-height:1.85;text-align:center}
   /* === 가독성/반응형 (한국어 어절 줄바꿈) === */
   body{word-break:keep-all;overflow-wrap:break-word}
   .sub,.muted,.method,.book p,.anchor p,.cmp .row,.pc,.aiout{line-height:1.75}
@@ -152,7 +155,7 @@
 <body>
 <div class="wrap">
   <div class="head"><h1>🌡️ 기후 타임머신</h1><span class="tag">측우기 → 2100 우리 동네</span></div>
-  <p class="sub">조선의 측우기부터 오늘의 위성까지 — 우리 조상이 비를 어떻게 쟀는지 보고, 그 데이터로 <b>우리 동네의 2100년 미래</b>를 직접 바꿔보세요.</p>
+  <p class="sub">측우기부터 위성까지 — 데이터로 <b>우리 동네 2100</b>을 직접 바꿔보세요.</p>
   <div class="tabs">
     <button id="t1" class="on" onclick="showTab(1)">① 측정의 역사 <small>측우기는 어떻게 기후를 알려줄까</small></button>
     <button id="t2" onclick="showTab(2)">② 우리 동네 2100 <small>위성지도 위, 미래를 본다</small></button>
@@ -163,7 +166,7 @@
   <section id="act1" class="on">
     <div class="card">
       <div class="yearbig">📜 <span id="syear">1442</span><small> · <span class="era-name" id="sera">—</span> · <span id="sdate">—</span></small></div>
-      <div class="muted" style="font-size:12px;margin-top:2px">슬라이더를 옆으로 옮기면 해가 바뀌며 그 해 날씨 이야기를 <b>쉽게 풀어</b> 보여줘요. 궁궐 위 <b>하늘</b>도 그 해 대표 날씨로 바뀝니다. <b>1392~1495년 · 조선왕조실록 기록</b></div>
+      <div class="muted" style="font-size:12px;margin-top:2px">슬라이더로 해를 넘기면 궁궐 하늘이 <b>그 해 날씨</b>로 바뀝니다. <b>1392~1495 · 조선왕조실록</b></div>
       <div id="scene">
         <img id="scenebg" src="경복궁사진.jpg" alt="경복궁 근정전" onerror="this.style.display='none'">
         <div id="wxtint"></div>
@@ -187,17 +190,9 @@
           <div id="sbars"></div>
         </div>
       </div>
-      <div class="anchors">
-        <div class="anchor"><div class="at" style="color:var(--gold)">🔭 측정 이전 · 삼국시대</div>
-          <p>"6월에 큰 비가 열흘이나 내렸다. 한강 물이 넘쳐 민가가 떠내려가고 물에 잠겼다." 양(量)이 아닌 <b>겪은 일을 글로</b> 적던 시대.<br><span style="color:var(--sub)">— 삼국사기(기상청 한국 기상기록집❶)</span></p></div>
-        <div class="anchor"><div class="at" style="color:var(--cool)">📏 실측 · 1871·1873 고성</div>
-          <p>측우기 수심을 <b>mm로 실측</b>한 기록 26건. 최대 <span class="mm">152mm</span>(1871.8.11, 7촌6분)까지.<br><span style="color:var(--sub)">— 한국수자원공사 조선시대 측우기</span></p></div>
-        <div class="anchor"><div class="at" style="color:var(--good)">🛰️ 현재 · 자동관측</div>
-          <p>전국 자동관측소(ASOS)와 위성이 1분 단위로 감시. 이 실측이 <b>②우리 동네 2100</b>의 출발점.<br><button class="qchip" style="margin-top:6px" onclick="showTab(2)">현재 지도 보기 →</button></p></div>
-      </div>
+      <div class="histline">🕰️ 측정의 진화 — <b>삼국</b> 비를 글로 → <b>1442</b> 측우기·주척 → <b>1871 고성</b> 실측 <span class="mm">최대 152㎜</span> → <b>현재</b> ASOS·위성</div>
       <div class="cta"><div class="msg">조상의 <b>긴 기록</b>이 있어 우리는 "기후가 변한다"를 압니다. 그럼 — <b>우리 동네의 2100년</b>은 어떨까요?</div>
         <button onclick="showTab(2)">🛰️ 우리 동네 2100 보러가기 →</button></div>
-      <div class="src">출처: <b>조선왕조실록</b> 기상·천문·지진 기사(1392~1495, 12,184건 중 연도별 대표) · 기상청 <b>한국 기상기록집❶</b>(삼국사기) · 한국수자원공사 <b>조선시대 측우기</b>(고성) · 종관기상관측(ASOS). 분류 건수는 실록 본문 키워드 집계.</div>
     </div>
   </section>
 
@@ -205,14 +200,13 @@
   <section id="act3">
     <div class="card">
       <div class="yearbig">♻️ 분리수거 챌린지 <small>· 내가 던진 만큼 미래가 바뀐다</small></div>
-      <p class="muted" style="margin:6px 0 0">분리수거 같은 작은 행동은 <b>탄소를 줄여</b> 우리 동네 2100년 <b>폭염</b>을 바꿔요. 병을 <b>끌어서 각도·파워를 정하고 손을 떼</b> 분리수거함에 넣어 저탄소 미래를 만들어요.<br>
-        <b>바람</b>이 부니 점선(예상 궤적)을 보고 맞추세요. 함은 좌우로 움직이고, 연속 성공하면 <b>콤보 점수</b>!<br>
-        <b>2개+ = 저탄소 🌳 / 1개 = 중간 😐 / 0개 = 고탄소 🔥</b></p>
+      <p class="muted" style="margin:6px 0 0">작은 행동이 <b>탄소를 줄여</b> 2100년 <b>폭염</b>을 바꿔요. 병을 끌어 던져 분리수거함에! (바람 주의, 함은 움직여요)<br>
+        <b>2개+ 저탄소 🌳 · 1개 중간 😐 · 0개 고탄소 🔥</b></p>
       <div style="margin:10px 0 0"><button class="gskip-btn" id="gmuteBtn" onclick="GAME.toggleMute(this)">🔊 소리 켜짐</button></div>
       <div class="gamewrap"><canvas id="gcv" width="640" height="360"></canvas></div>
       <div id="gresult"></div>
       <div class="cta" style="margin-top:12px"><button class="gskip-btn" onclick="GAME.toMap()">게임 건너뛰고 지도 보기 →</button></div>
-      <div class="src">분리수거(자원순환)는 온실가스를 줄이는 대표 행동이에요. 이 게임의 성공 수가 ② 지도의 SSP 탄소 시나리오(저/중/고)로 연결됩니다 — 시나리오 수치는 국립기상과학원 SSP 인용(교육용 모델). CO₂ 절감: 재생 PET는 새 플라스틱보다 온실가스 최대 79%↓(1kg당 약 1.7kg) — 출처 PET Recycling Team(ALPLA), 병 1개(10g) 환산은 교육용 추정.</div>
+      <div class="src">성공 수 → ② 지도의 탄소 시나리오(저/중/고). 폭염 전망은 SSP 인용·교육용 모델.</div>
     </div>
   </section>
 
@@ -232,17 +226,19 @@
         </div>
         <div id="panel">
           <div class="city">전국을 만져보세요 🛰️</div>
-          <div class="muted" style="margin-top:6px">위성지도 위 도시 배지를 누르면 지금과 2100년을 비교해 줘요. <b>2100 → 고탄소</b>를 누르면 위성지도 위로 폭염이 빨갛게 번져요.</div>
+          <div class="muted" style="margin-top:6px">도시 배지를 눌러 <b>지금 vs 2100</b> 비교. <b>2100·고탄소</b>면 지도가 빨갛게 달아올라요.</div>
           <div class="ai"><input id="aiq" placeholder="예: 우리 동네 2100년에 살 만해?"><button id="aisend">물어보기</button></div>
           <div class="chips"><button class="chip">2100년에 살 만해?</button><button class="chip">왜 더워져?</button><button class="chip">폭염 줄이려면?</button><button class="chip">열대야가 뭐야?</button></div>
           <div class="aiout" id="aiout"></div>
-          <div class="src"><span class="pill">현재=ASOS 실측</span><span class="pill">미래=SSP 인용</span><br>국립기상과학원 남한상세 SSP(폭염 +15~71일 등) · 선택→미래 보간은 교육용 모델 · 지도: 카카오 스카이뷰</div>
+          <div class="src"><span class="pill">현재=ASOS 실측</span><span class="pill">미래=SSP 인용</span><span class="pill">교육용 모델</span></div>
         </div>
       </div>
       <div class="cta" style="margin-top:14px"><div class="msg">2100년 미래가 이렇게 <b>뜨거워</b>요. 그럼 — <b>내가 직접 바꿔볼까요?</b></div>
         <button onclick="showTab(3)">♻️ 분리수거 챌린지로 미래 바꾸기 →</button></div>
     </div>
   </section>
+
+  <div class="srcfoot">출처 · <b>조선왕조실록</b> 기상기사(1392~1495) · 한국수자원공사 <b>측우기</b>(고성, 최대 152㎜) · 기상청 <b>ASOS</b> 종관관측 · 국립기상과학원 <b>남한상세 SSP</b>(폭염 +15~71일·교육용 모델) · 재생PET CO₂ <b>PET Recycling Team(ALPLA)</b> · 지도 <b>카카오</b> · 삼국 기록 기상청 한국 기상기록집❶</div>
 </div>
 
 <script src="climate-data.js"></script>

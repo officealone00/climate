@@ -89,6 +89,7 @@
   .gres-retry{border:1px solid var(--line);background:#0e1830;color:var(--txt);border-radius:12px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer}
   .gskip-btn{border:1px solid var(--line);background:#0e1830;color:var(--sub);border-radius:11px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer}
   .gres-stats{margin-top:10px;font-size:13px;color:#e7ddf5}.gres-stats b{color:var(--gold)}
+  .gres-ai{margin-top:10px;background:#0e1830;border:1px solid var(--accent);border-radius:11px;padding:10px 12px;font-size:13px;color:#dfe6ff;line-height:1.75;text-align:left}
   .gres-cite{display:block;margin-top:6px;font-size:10.5px;color:#6f80a6;line-height:1.5}
   /* === ACT1 실록 연도 슬라이더 === */
   .qchips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 2px}
@@ -131,6 +132,21 @@
   .anchor .at{font-size:12px;font-weight:800;margin-bottom:5px}
   .anchor p{margin:0;font-size:11.5px;color:#cdd8ef;line-height:1.55}
   .anchor .mm{color:var(--cool);font-weight:800}
+  /* === 가독성/반응형 (한국어 어절 줄바꿈) === */
+  body{word-break:keep-all;overflow-wrap:break-word}
+  .sub,.muted,.method,.book p,.anchor p,.cmp .row,.pc,.aiout{line-height:1.75}
+  .src{line-height:1.9;letter-spacing:.1px}
+  .book p{margin:2px 0}
+  .cta .msg{line-height:1.7}
+  @media(max-width:560px){
+    .wrap{padding:14px 12px 44px}
+    h1{font-size:19px} .sub{font-size:13px;margin:6px 0 14px}
+    .tabs{gap:6px} .tabs button{font-size:12.5px;padding:11px 7px}
+    .tabs button small{font-size:9.5px}
+    .muted,.book p,.anchor p{line-height:1.8}
+    .src{line-height:1.95}
+    #kmap{height:440px}
+  }
 </style>
 </head>
 <body>
@@ -188,8 +204,9 @@
   <!-- ACT 3: 분리수거 챌린지 -->
   <section id="act3">
     <div class="card">
-      <div class="yearbig">♻️ 분리수거 챌린지 <small>· 포트리스처럼 던져 미래를 바꾼다</small></div>
-      <p class="muted" style="margin:6px 0 0">플라스틱 물병을 <b>끌어서 각도·파워를 정하고 손을 떼</b> 분리수거함에 넣으세요. <b>바람</b>이 부니 점선(예상 궤적)을 보고 맞춰요. 함은 좌우로 움직이고, 연속 성공하면 <b>콤보 점수</b>!<br>
+      <div class="yearbig">♻️ 분리수거 챌린지 <small>· 내가 던진 만큼 미래가 바뀐다</small></div>
+      <p class="muted" style="margin:6px 0 0">분리수거 같은 작은 행동은 <b>탄소를 줄여</b> 우리 동네 2100년 <b>폭염</b>을 바꿔요. 병을 <b>끌어서 각도·파워를 정하고 손을 떼</b> 분리수거함에 넣어 저탄소 미래를 만들어요.<br>
+        <b>바람</b>이 부니 점선(예상 궤적)을 보고 맞추세요. 함은 좌우로 움직이고, 연속 성공하면 <b>콤보 점수</b>!<br>
         <b>2개+ = 저탄소 🌳 / 1개 = 중간 😐 / 0개 = 고탄소 🔥</b></p>
       <div style="margin:10px 0 0"><button class="gskip-btn" id="gmuteBtn" onclick="GAME.toggleMute(this)">🔊 소리 켜짐</button></div>
       <div class="gamewrap"><canvas id="gcv" width="640" height="360"></canvas></div>
@@ -491,20 +508,38 @@ const GAME=(function(){
   function finish(){
     state='done';
     const scen=success>=2?'low':success===1?'mid':'high';
-    const info=success>=2?['🌳','저탄소 미래','#22c55e','분리수거 달인! 2100년이 한결 시원해요.']
-              :success===1?['😐','중간 미래','#f5a623','절반의 노력. 미래는 어중간하게 더워져요.']
-              :['🔥','고탄소 미래','#ff3b30','분리수거 실패… 2100년이 펄펄 끓어요.'];
+    const sval=scen==='low'?0.12:scen==='high'?0.95:0.5;
+    const addHot=Math.round(15+(71-15)*sval);   // 2100 전국 폭염 +일수(SSP 모델)
+    const label=scen==='low'?'저탄소':scen==='high'?'고탄소':'중간';
+    const info=success>=2?['🌳','저탄소 미래','#22c55e','탄소를 많이 줄였어요! 2100년 폭염 증가가 가장 작아요.']
+              :success===1?['😐','중간 미래','#f5a623','절반의 노력. 폭염이 꽤 늘어나는 미래예요.']
+              :['🔥','고탄소 미래','#ff3b30','탄소를 못 줄였어요… 2100년 폭염이 가장 크게 늘어요.'];
     const r=$('gresult'); if(!r)return; r.style.display='block';
     r.innerHTML=`<div class="gres-emoji">${info[0]}</div>
       <div class="gres-title" style="color:${info[2]}">${success}/3 성공 → ${info[1]}</div>
       <div class="gres-msg">${info[3]}</div>
-      <div class="gres-stats">점수 <b>${score}</b> · 최고 콤보 <b>${bestCombo}</b> · CO₂ 약 <b>${co2}g</b> 절감*</div>
+      <div class="gres-stats">내 선택 = <b>${label}</b> · 2100년 전국 폭염 <b style="color:var(--hot)">+약 ${addHot}일</b> · CO₂ 약 <b>${co2}g</b> 절감*</div>
+      <div class="gres-ai" id="gresai">🤖 AI 기후도우미가 살펴보는 중…</div>
       <div class="gres-note">이 결과가 ③ 지도의 <b>탄소 시나리오</b>를 정해요. 내 행동이 미래를 바꿉니다.
-        <span class="gres-cite">*재생 PET는 새 플라스틱보다 온실가스 최대 79%↓(1kg당 약 1.7kg)·병 1개 10g 환산 교육용 추정 — 출처: PET Recycling Team(ALPLA)</span></div>
+        <span class="gres-cite">폭염 증가폭은 국립기상과학원 SSP(+15~71일) 인용·교육용 모델. *재생 PET는 새 플라스틱보다 온실가스 최대 79%↓ — 출처 PET Recycling Team(ALPLA), 병 1개 10g 환산 교육용 추정.</span></div>
       <div class="gres-btns">
         <button class="gres-go" onclick="GAME.toMap('${scen}')">내 미래 지도 보기 →</button>
         <button class="gres-retry" onclick="GAME.reset()">다시 도전</button>
       </div>`;
+    aiComment(scen,label,addHot,success);
+  }
+  function fallbackAI(scen,label,addHot){
+    return scen==='low'?`${label}를 선택해줘서 2100년 폭염 증가가 +${addHot}일로 가장 작아요. 분리수거·에너지 절약 같은 작은 행동이 모이면 우리 동네 여름이 한결 견딜 만해져요.`
+      :scen==='high'?`지금처럼 탄소를 못 줄이면 2100년 폭염이 +${addHot}일까지 늘어요. 분리수거·대중교통 같은 행동으로 탄소를 줄이면 이 숫자를 낮출 수 있어요.`
+      :`${label}을 선택했어요. 조금만 더 탄소를 줄이면 2100년 폭염 증가(+${addHot}일)를 더 낮출 수 있어요. 작은 행동이 미래를 바꿔요.`;
+  }
+  function aiComment(scen,label,addHot,succ){
+    const el=$('gresai'); if(!el)return;
+    const ctx=`학생이 '탄소 줄이기' 게임에서 3번 중 ${succ}번 성공해 ${label} 시나리오를 골랐다. 이 선택이면 2100년 한국 전국 폭염일수가 지금보다 약 ${addHot}일 늘어난다(국립기상과학원 SSP, 21세기말 +15~71일). 분리수거·에너지 절약 같은 작은 행동이 탄소를 줄여 폭염 증가를 늦춘다.`;
+    const q=`내 선택(${label})이 2100년 우리 동네 폭염에 어떤 의미인지, 응원과 함께 2문장으로 알려줘.`;
+    fetch('https://asos-proxy.rodyinsight.workers.dev/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,context:ctx})})
+      .then(r=>r.json()).then(d=>{el.textContent='🤖 '+((d.answer&&d.answer.trim())||fallbackAI(scen,label,addHot));})
+      .catch(()=>{el.textContent='🤖 '+fallbackAI(scen,label,addHot);});
   }
 
   /* ---- 입력 ---- */

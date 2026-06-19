@@ -76,6 +76,18 @@
   .cbadge{transform:translate(-50%,-50%);cursor:pointer;font-weight:800;color:#fff;border-radius:999px;border:2px solid rgba(255,255,255,.9);box-shadow:0 3px 10px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
   .cbadge small{font-size:8.5px;font-weight:700}
   .note{font-size:11.5px;color:var(--warn);background:rgba(245,166,35,.1);border:1px solid #5a4a1f;border-radius:10px;padding:8px 11px;margin-bottom:12px}
+  /* === ACT 3 게임 === */
+  .gamewrap{margin-top:14px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0d1730}
+  #gcv{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
+  #gresult{display:none;margin-top:14px;text-align:center;background:#0d1730;border:1px solid var(--line);border-radius:14px;padding:18px}
+  .gres-emoji{font-size:42px;line-height:1}
+  .gres-title{font-size:20px;font-weight:900;margin:8px 0 4px}
+  .gres-msg{font-size:14px;color:#e7ddf5}
+  .gres-note{font-size:12px;color:var(--sub);margin-top:10px}
+  .gres-btns{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .gres-go{border:none;background:linear-gradient(90deg,var(--hot),var(--accent));color:#fff;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:800;cursor:pointer}
+  .gres-retry{border:1px solid var(--line);background:#0e1830;color:var(--txt);border-radius:12px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer}
+  .gskip-btn{border:1px solid var(--line);background:#0e1830;color:var(--sub);border-radius:11px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
@@ -84,7 +96,8 @@
   <p class="sub">조선의 측우기부터 오늘의 위성까지 — 우리 조상이 비를 어떻게 쟀는지 보고, 그 데이터로 <b>우리 동네의 2100년 미래</b>를 직접 바꿔보세요.</p>
   <div class="tabs">
     <button id="t1" class="on" onclick="showTab(1)">① 측정의 역사 <small>측우기는 어떻게 기후를 알려줄까</small></button>
-    <button id="t2" onclick="showTab(2)">② 우리 동네 2100 <small>위성지도 위, 내 선택이 미래를 바꾼다</small></button>
+    <button id="t3" onclick="showTab(3)">② 분리수거 챌린지 <small>내 행동이 미래를 정한다</small></button>
+    <button id="t2" onclick="showTab(2)">③ 우리 동네 2100 <small>위성지도 위, 미래를 본다</small></button>
   </div>
 
   <!-- ACT 1 -->
@@ -106,9 +119,22 @@
           <div class="book sci"><div class="h">🔬 과학책</div><p id="sci">—</p></div>
         </div>
       </div>
-      <div class="cta"><div class="msg">조상의 <b>긴 기록</b>이 있어 우리는 "기후가 변한다"를 압니다. 그럼 — <b>우리 동네의 미래</b>는?</div>
-        <button onclick="showTab(2)">우리 동네 2100 보러가기 →</button></div>
+      <div class="cta"><div class="msg">조상의 <b>긴 기록</b>이 있어 우리는 "기후가 변한다"를 압니다. 그럼 — <b>내 행동</b>으로 미래를 바꿔볼까요?</div>
+        <button onclick="showTab(3)">♻️ 분리수거 챌린지 하러가기 →</button></div>
       <div class="src">출처: 기상청 <b>한국 기상기록집❶</b>(삼국사기) · <b>조선왕조실록</b>(세종실록 1442) · 한국수자원공사 <b>조선시대 측우기</b>(고성) · 종관기상관측(ASOS)</div>
+    </div>
+  </section>
+
+  <!-- ACT 3: 분리수거 챌린지 -->
+  <section id="act3">
+    <div class="card">
+      <div class="yearbig">♻️ 분리수거 챌린지 <small>· 내가 던진 만큼 미래가 바뀐다</small></div>
+      <p class="muted" style="margin:6px 0 0">병을 <b>드래그해서 조준하고 손을 떼면</b> 분리수거함으로 날아가요. 3번 중 많이 성공할수록 2100년이 시원해집니다.<br>
+        <b>2개+ 성공 = 저탄소 🌳 / 1개 = 중간 😐 / 0개 = 고탄소 🔥</b></p>
+      <div class="gamewrap"><canvas id="gcv" width="640" height="360"></canvas></div>
+      <div id="gresult"></div>
+      <div class="cta" style="margin-top:12px"><button class="gskip-btn" onclick="GAME.toMap()">게임 건너뛰고 지도 보기 →</button></div>
+      <div class="src">분리수거(자원순환)는 온실가스를 줄이는 대표 행동이에요. 이 게임의 성공 수가 ③ 지도의 SSP 탄소 시나리오(저/중/고)로 연결됩니다 — 시나리오 수치는 국립기상과학원 SSP 인용(교육용 모델).</div>
     </div>
   </section>
 
@@ -143,9 +169,10 @@
 const $=id=>document.getElementById(id);
 const KAKAO_KEY='c5fd34455bbe0b7858d63d08e1ddb74a';
 function showTab(n){
-  $('act1').classList.toggle('on',n===1); $('act2').classList.toggle('on',n===2);
-  $('t1').classList.toggle('on',n===1); $('t2').classList.toggle('on',n===2);
+  $('act1').classList.toggle('on',n===1); $('act2').classList.toggle('on',n===2); $('act3').classList.toggle('on',n===3);
+  $('t1').classList.toggle('on',n===1); $('t2').classList.toggle('on',n===2); $('t3').classList.toggle('on',n===3);
   if(n===2 && !window._mi){ window._mi=true; MAP.init(); }
+  if(n===3){ GAME.init(); }
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -272,7 +299,113 @@ const MAP=(function(){
     s.onerror=()=>fail('카카오 SDK를 불러오지 못했어요 (네트워크 또는 도메인 차단).');
     document.head.appendChild(s);
   }
-  return { init };
+  function setScenario(s){
+    scen=s; mode='2100';
+    const mb=$('mode'); if(mb){mb.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.m==='2100'));}
+    const sc=$('scen'); if(sc){sc.style.display='flex';sc.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.s===s));}
+    if(map){ refresh(); if(selected)panel(); }
+  }
+  return { init, setScenario };
+})();
+
+/* ===== ACT 3: 분리수거 챌린지 게임 ===== */
+const GAME=(function(){
+  let cv,ctx,bound=false,raf=0;
+  const W=640,H=360,FLOOR=320,G=0.40;
+  const ORIGIN={x:72,y:296};
+  const BIN={x:460,y:235,w:110,h:85};           // 바닥(=FLOOR)에 닿는 분리수거함
+  let throwsLeft,success,state,bx,by,vx,vy,dragging,downX,downY,curX,curY,feedback,feedbackColor;
+  function launchVec(){
+    let x=(curX-downX)*0.16, y=(curY-downY)*0.16;
+    const m=Math.hypot(x,y),cap=22; if(m>cap){x=x/m*cap;y=y/m*cap;}
+    return {x,y};
+  }
+  function pt(e){
+    const r=cv.getBoundingClientRect();
+    return {x:(e.clientX-r.left)*(W/r.width), y:(e.clientY-r.top)*(H/r.height)};
+  }
+  function newThrow(){ bx=ORIGIN.x;by=ORIGIN.y;vx=vy=0;dragging=false;feedback='';state='aim'; }
+  function reset(){ const r=$('gresult'); if(r)r.style.display='none'; throwsLeft=3;success=0;newThrow();render(); }
+  function drawBin(){
+    ctx.fillStyle='#16331f'; ctx.fillRect(BIN.x,BIN.y,BIN.w,BIN.h);
+    ctx.fillStyle='#22c55e'; ctx.fillRect(BIN.x,BIN.y,BIN.w,10);            // 입구 테두리
+    ctx.fillStyle='#0a1120'; ctx.fillRect(BIN.x+10,BIN.y-5,BIN.w-20,11);   // 입구 구멍
+    ctx.font='40px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('♻️',BIN.x+BIN.w/2,BIN.y+BIN.h/2+8);
+    ctx.fillStyle='#8ea0c2';ctx.font='11px sans-serif';
+    ctx.fillText('분리수거함',BIN.x+BIN.w/2,BIN.y+BIN.h+13);
+  }
+  function drawAim(){
+    const v=launchVec(); let px=ORIGIN.x,py=ORIGIN.y,pvx=v.x,pvy=v.y;
+    ctx.fillStyle='rgba(233,180,76,.85)';
+    for(let i=0;i<30;i++){ px+=pvx;py+=pvy;pvy+=G; if(py>FLOOR||px>W)break;
+      if(i%2===0){ctx.beginPath();ctx.arc(px,py,2.6,0,7);ctx.fill();} }
+  }
+  function render(){
+    if(!ctx)return;
+    const sky=ctx.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0,'#152544');sky.addColorStop(1,'#0d1730');
+    ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#1d2a44';ctx.fillRect(0,FLOOR,W,H-FLOOR);
+    drawBin();
+    if(state==='aim'&&dragging)drawAim();
+    ctx.font='30px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('🧴',bx,by);
+    ctx.fillStyle='#eaf0ff';ctx.font='bold 15px sans-serif';ctx.textAlign='left';ctx.textBaseline='alphabetic';
+    ctx.fillText('남은 기회 '+throwsLeft+'   성공 '+success+'/3',14,26);
+    if(state==='aim'&&!dragging){
+      ctx.fillStyle='#8ea0c2';ctx.font='12px sans-serif';
+      ctx.fillText('병을 끌어 조준하고 손을 떼세요 →',14,H-14);
+    }
+    if(feedback){ctx.textAlign='center';ctx.font='bold 26px sans-serif';ctx.fillStyle=feedbackColor;ctx.fillText(feedback,W/2,90);}
+  }
+  function fly(){
+    const oldBy=by;
+    bx+=vx;by+=vy;vy+=G;
+    const inX=bx>BIN.x+10&&bx<BIN.x+BIN.w-10;
+    if(vy>0&&oldBy<BIN.y&&by>=BIN.y&&inX){ by=BIN.y+34;render();return score(true); }
+    if(by>=FLOOR||bx<-40||bx>W+40){ return score(false); }
+    render(); raf=requestAnimationFrame(fly);
+  }
+  function score(hit){
+    if(hit)success++; throwsLeft--; state='wait';
+    feedback=hit?'골인! ♻️':'아쉽다 💧'; feedbackColor=hit?'#22c55e':'#ff7a2a'; render();
+    setTimeout(()=>{ if(throwsLeft>0){newThrow();render();} else finish(); },700);
+  }
+  function finish(){
+    state='done';
+    const scen=success>=2?'low':success===1?'mid':'high';
+    const info=success>=2?['🌳','저탄소 미래','분리수거를 잘 해냈어요! 2100년이 한결 시원합니다.','#22c55e']
+              :success===1?['😐','중간 미래','절반의 노력. 미래는 어중간하게 더워져요.','#f5a623']
+              :['🔥','고탄소 미래','분리수거 실패… 2100년이 펄펄 끓어요.','#ff3b30'];
+    const r=$('gresult'); if(!r)return;
+    r.style.display='block';
+    r.innerHTML=`<div class="gres-emoji">${info[0]}</div>
+      <div class="gres-title" style="color:${info[3]}">${success}/3 성공 → ${info[1]}</div>
+      <div class="gres-msg">${info[2]}</div>
+      <div class="gres-note">이 결과가 ③ 지도의 <b>탄소 시나리오</b>를 정해요. 내 행동이 미래를 바꿉니다.</div>
+      <div class="gres-btns">
+        <button class="gres-go" onclick="GAME.toMap('${scen}')">내 미래 지도 보기 →</button>
+        <button class="gres-retry" onclick="GAME.reset()">다시 던지기</button>
+      </div>`;
+  }
+  function onDown(e){ if(state!=='aim')return; e.preventDefault(); const p=pt(e);dragging=true;downX=p.x;downY=p.y;curX=p.x;curY=p.y;render(); }
+  function onMove(e){ if(!dragging)return; e.preventDefault(); const p=pt(e);curX=p.x;curY=p.y;render(); }
+  function onUp(){ if(!dragging)return; dragging=false; const v=launchVec();
+    if(Math.hypot(v.x,v.y)<1.4){render();return;}
+    vx=v.x;vy=v.y;bx=ORIGIN.x;by=ORIGIN.y;state='fly';feedback='';fly(); }
+  function init(){
+    cv=$('gcv'); if(!cv)return; ctx=cv.getContext('2d');
+    if(!bound){ bound=true;
+      cv.addEventListener('pointerdown',onDown);
+      cv.addEventListener('pointermove',onMove);
+      window.addEventListener('pointerup',onUp);
+    }
+    if(raf)cancelAnimationFrame(raf);
+    reset();
+  }
+  function toMap(scen){ if(scen)MAP.setScenario(scen); showTab(2); }
+  return { init, reset, toMap };
 })();
 </script>
 </body>

@@ -88,6 +88,8 @@
   .gres-go{border:none;background:linear-gradient(90deg,var(--hot),var(--accent));color:#fff;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:800;cursor:pointer}
   .gres-retry{border:1px solid var(--line);background:#0e1830;color:var(--txt);border-radius:12px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer}
   .gskip-btn{border:1px solid var(--line);background:#0e1830;color:var(--sub);border-radius:11px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer}
+  .gres-stats{margin-top:10px;font-size:13px;color:#e7ddf5}.gres-stats b{color:var(--gold)}
+  .gres-cite{display:block;margin-top:6px;font-size:10.5px;color:#6f80a6;line-height:1.5}
 </style>
 </head>
 <body>
@@ -128,13 +130,14 @@
   <!-- ACT 3: 분리수거 챌린지 -->
   <section id="act3">
     <div class="card">
-      <div class="yearbig">♻️ 분리수거 챌린지 <small>· 내가 던진 만큼 미래가 바뀐다</small></div>
-      <p class="muted" style="margin:6px 0 0">병을 <b>드래그해서 조준하고 손을 떼면</b> 분리수거함으로 날아가요. 3번 중 많이 성공할수록 2100년이 시원해집니다.<br>
-        <b>2개+ 성공 = 저탄소 🌳 / 1개 = 중간 😐 / 0개 = 고탄소 🔥</b></p>
+      <div class="yearbig">♻️ 분리수거 챌린지 <small>· 포트리스처럼 던져 미래를 바꾼다</small></div>
+      <p class="muted" style="margin:6px 0 0">플라스틱 물병을 <b>끌어서 각도·파워를 정하고 손을 떼</b> 분리수거함에 넣으세요. <b>바람</b>이 부니 점선(예상 궤적)을 보고 맞춰요. 함은 좌우로 움직이고, 연속 성공하면 <b>콤보 점수</b>!<br>
+        <b>2개+ = 저탄소 🌳 / 1개 = 중간 😐 / 0개 = 고탄소 🔥</b></p>
+      <div style="margin:10px 0 0"><button class="gskip-btn" id="gmuteBtn" onclick="GAME.toggleMute(this)">🔊 소리 켜짐</button></div>
       <div class="gamewrap"><canvas id="gcv" width="640" height="360"></canvas></div>
       <div id="gresult"></div>
       <div class="cta" style="margin-top:12px"><button class="gskip-btn" onclick="GAME.toMap()">게임 건너뛰고 지도 보기 →</button></div>
-      <div class="src">분리수거(자원순환)는 온실가스를 줄이는 대표 행동이에요. 이 게임의 성공 수가 ③ 지도의 SSP 탄소 시나리오(저/중/고)로 연결됩니다 — 시나리오 수치는 국립기상과학원 SSP 인용(교육용 모델).</div>
+      <div class="src">분리수거(자원순환)는 온실가스를 줄이는 대표 행동이에요. 이 게임의 성공 수가 ③ 지도의 SSP 탄소 시나리오(저/중/고)로 연결됩니다 — 시나리오 수치는 국립기상과학원 SSP 인용(교육용 모델). CO₂ 절감: 재생 PET는 새 플라스틱보다 온실가스 최대 79%↓(1kg당 약 1.7kg) — 출처 PET Recycling Team(ALPLA), 병 1개(10g) 환산은 교육용 추정.</div>
     </div>
   </section>
 
@@ -308,104 +311,158 @@ const MAP=(function(){
   return { init, setScenario };
 })();
 
-/* ===== ACT 3: 분리수거 챌린지 게임 ===== */
+/* ===== ACT 3: 분리수거 챌린지 게임 (고도화: 포트리스식 조작·바람·연출·학습) ===== */
 const GAME=(function(){
-  let cv,ctx,bound=false,raf=0;
-  const W=640,H=360,FLOOR=320,G=0.40;
-  const ORIGIN={x:72,y:296};
-  const BIN={x:460,y:235,w:110,h:85};           // 바닥(=FLOOR)에 닿는 분리수거함
-  let throwsLeft,success,state,bx,by,vx,vy,dragging,downX,downY,curX,curY,feedback,feedbackColor;
-  function launchVec(){
-    let x=(curX-downX)*0.16, y=(curY-downY)*0.16;
-    const m=Math.hypot(x,y),cap=22; if(m>cap){x=x/m*cap;y=y/m*cap;}
-    return {x,y};
+  let cv,ctx,bound=false,raf=0,running=false;
+  const W=640,H=360,FLOOR=320,G=0.40,CAP=22,MULT=0.16;
+  const ORIGIN={x:74,y:298};
+  const BIN={y:236,w:108,h:84};          // x는 동적(좌우 이동)
+  const BIN_MIN=360,BIN_MAX=520;
+  const CO2_PER=17;                       // g/병 (교육용 추정: 재생PET 1kg당 1.7kg↓ × 병 10g)
+  const TIPS=['투명 페트병은 라벨을 떼고 버려요','내용물을 비우고 가볍게 헹궈요',
+    '찌그러뜨린 뒤 뚜껑을 닫아 부피를 줄여요','색깔 있는 병은 투명 페트병과 따로 배출해요',
+    '기름·이물질이 묻으면 재활용이 안 돼요'];
+  let throwsLeft,success,combo,bestCombo,score,co2,tip;
+  let bx,by,vx,vy,spin,state,dragging,downX,downY,curX,curY,feedback,feedbackColor;
+  let binX,binDir,wind,parts=[],shake=0,muted=false,actx=null;
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  function beep(f,dur,type,vol){ if(muted)return;
+    try{ if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
+      const o=actx.createOscillator(),g=actx.createGain();
+      o.type=type||'sine';o.frequency.value=f;g.gain.value=vol||0.05;o.connect(g);g.connect(actx.destination);
+      const t=actx.currentTime;o.start(t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.stop(t+dur);
+    }catch(e){} }
+  const sThrow=()=>beep(320,0.12,'triangle',0.05);
+  const sGoal =()=>{beep(660,0.10,'square',0.06);setTimeout(()=>beep(990,0.16,'square',0.06),90);};
+  const sMiss =()=>beep(150,0.20,'sawtooth',0.05);
+
+  function newThrow(){ bx=ORIGIN.x;by=ORIGIN.y;vx=vy=0;spin=0;dragging=false;feedback='';state='aim';
+    wind=rnd(-0.05,0.05); tip=TIPS[(3-throwsLeft+TIPS.length)%TIPS.length]; }
+  function reset(){ const r=$('gresult'); if(r)r.style.display='none';
+    throwsLeft=3;success=0;combo=0;bestCombo=0;score=0;co2=0;
+    binX=(BIN_MIN+BIN_MAX)/2;binDir=Math.random()<.5?-1:1;parts=[];shake=0;newThrow(); }
+  function launchVec(){ let x=(curX-downX)*MULT,y=(curY-downY)*MULT;
+    const m=Math.hypot(x,y); if(m>CAP){x=x/m*CAP;y=y/m*CAP;} return {x,y}; }
+  function pt(e){ const r=cv.getBoundingClientRect();
+    return {x:(e.clientX-r.left)*(W/r.width),y:(e.clientY-r.top)*(H/r.height)}; }
+
+  /* ---- 그리기 ---- */
+  function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+  function drawBottle(x,y,rot){               // 투명 플라스틱 물병(PET)
+    ctx.save();ctx.translate(x,y);ctx.rotate(rot||0);
+    ctx.strokeStyle='#bfe3ff';ctx.lineWidth=1.4;
+    ctx.fillStyle='rgba(150,210,255,.28)'; rr(-8,-8,16,26,6);ctx.fill();ctx.stroke();   // 몸체(투명)
+    ctx.fillStyle='rgba(70,160,255,.70)';  rr(-6,4,12,11,3);ctx.fill();                 // 물
+    ctx.fillStyle='rgba(150,210,255,.28)';ctx.fillRect(-3.5,-14,7,7);ctx.strokeRect(-3.5,-14,7,7); // 목
+    ctx.fillStyle='#eaf4ff';ctx.fillRect(-4.5,-18,9,4);                                 // 뚜껑(흰색)
+    ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-4,-4);ctx.lineTo(-4,14);ctx.stroke(); // 하이라이트
+    ctx.restore();
   }
-  function pt(e){
-    const r=cv.getBoundingClientRect();
-    return {x:(e.clientX-r.left)*(W/r.width), y:(e.clientY-r.top)*(H/r.height)};
+  function drawBin(x){
+    ctx.fillStyle='#16331f';rr(x,BIN.y,BIN.w,BIN.h,6);ctx.fill();
+    ctx.fillStyle='#22c55e';ctx.fillRect(x,BIN.y,BIN.w,10);                 // 입구 테두리
+    ctx.fillStyle='#0a1120';ctx.fillRect(x+12,BIN.y-5,BIN.w-24,11);         // 입구 구멍
+    ctx.font='38px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('♻️',x+BIN.w/2,BIN.y+BIN.h/2+8);
+    ctx.fillStyle='#8ea0c2';ctx.font='11px sans-serif';ctx.fillText('분리수거함',x+BIN.w/2,BIN.y+BIN.h+13);
   }
-  function newThrow(){ bx=ORIGIN.x;by=ORIGIN.y;vx=vy=0;dragging=false;feedback='';state='aim'; }
-  function reset(){ const r=$('gresult'); if(r)r.style.display='none'; throwsLeft=3;success=0;newThrow();render(); }
-  function drawBin(){
-    ctx.fillStyle='#16331f'; ctx.fillRect(BIN.x,BIN.y,BIN.w,BIN.h);
-    ctx.fillStyle='#22c55e'; ctx.fillRect(BIN.x,BIN.y,BIN.w,10);            // 입구 테두리
-    ctx.fillStyle='#0a1120'; ctx.fillRect(BIN.x+10,BIN.y-5,BIN.w-20,11);   // 입구 구멍
-    ctx.font='40px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('♻️',BIN.x+BIN.w/2,BIN.y+BIN.h/2+8);
-    ctx.fillStyle='#8ea0c2';ctx.font='11px sans-serif';
-    ctx.fillText('분리수거함',BIN.x+BIN.w/2,BIN.y+BIN.h+13);
-  }
-  function drawAim(){
-    const v=launchVec(); let px=ORIGIN.x,py=ORIGIN.y,pvx=v.x,pvy=v.y;
+  function drawAim(){ const v=launchVec();let px=ORIGIN.x,py=ORIGIN.y,pvx=v.x,pvy=v.y;
     ctx.fillStyle='rgba(233,180,76,.85)';
-    for(let i=0;i<30;i++){ px+=pvx;py+=pvy;pvy+=G; if(py>FLOOR||px>W)break;
-      if(i%2===0){ctx.beginPath();ctx.arc(px,py,2.6,0,7);ctx.fill();} }
-  }
-  function render(){
-    if(!ctx)return;
-    const sky=ctx.createLinearGradient(0,0,0,H);
-    sky.addColorStop(0,'#152544');sky.addColorStop(1,'#0d1730');
+    for(let i=0;i<36;i++){ pvx+=wind;px+=pvx;py+=pvy;pvy+=G; if(py>FLOOR||px>W||px<0)break;
+      if(i%2===0){ctx.beginPath();ctx.arc(px,py,2.4,0,7);ctx.fill();} } }
+  function drawWind(){ const mag=Math.round(Math.abs(wind)*100);
+    ctx.textAlign='center';ctx.textBaseline='alphabetic';
+    ctx.fillStyle=mag>=4?'#ff7a2a':'#3aa0e0';ctx.font='bold 13px sans-serif';
+    ctx.fillText('바람 '+(wind>=0?'→':'←')+' '+mag,W/2,22); }
+  function drawHUD(){ ctx.textBaseline='alphabetic';
+    ctx.fillStyle='#eaf0ff';ctx.font='bold 14px sans-serif';ctx.textAlign='left';
+    ctx.fillText('기회 '+throwsLeft+'   점수 '+score+(combo>1?'   🔥x'+combo:''),14,24);
+    if(state==='aim'&&dragging){ const v=launchVec(),m=Math.hypot(v.x,v.y),ang=Math.round(Math.atan2(-v.y,v.x)*180/Math.PI);
+      ctx.fillStyle='#22304f';ctx.fillRect(14,H-22,150,9);
+      ctx.fillStyle=m>CAP*0.9?'#ff3b30':'#e9c46a';ctx.fillRect(14,H-22,150*Math.min(1,m/CAP),9);
+      ctx.fillStyle='#eaf0ff';ctx.font='12px sans-serif';ctx.textAlign='left';
+      ctx.fillText('파워 '+Math.round(Math.min(1,m/CAP)*100)+'%   각도 '+ang+'°',14,H-28);
+    } else if(state==='aim'){ ctx.fillStyle='#9fb0d0';ctx.font='12px sans-serif';ctx.textAlign='center';
+      ctx.fillText('💡 '+tip,W/2,H-12); } }
+  function drawParts(){ parts.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.c;
+      ctx.beginPath();ctx.arc(p.x,p.y,3.2,0,7);ctx.fill();}); ctx.globalAlpha=1; }
+  function render(){ if(!ctx)return;
+    const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#152544');sky.addColorStop(1,'#0d1730');
     ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+    ctx.save(); if(shake>0)ctx.translate(rnd(-shake,shake),rnd(-shake,shake));
     ctx.fillStyle='#1d2a44';ctx.fillRect(0,FLOOR,W,H-FLOOR);
-    drawBin();
-    if(state==='aim'&&dragging)drawAim();
-    ctx.font='30px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('🧴',bx,by);
-    ctx.fillStyle='#eaf0ff';ctx.font='bold 15px sans-serif';ctx.textAlign='left';ctx.textBaseline='alphabetic';
-    ctx.fillText('남은 기회 '+throwsLeft+'   성공 '+success+'/3',14,26);
-    if(state==='aim'&&!dragging){
-      ctx.fillStyle='#8ea0c2';ctx.font='12px sans-serif';
-      ctx.fillText('병을 끌어 조준하고 손을 떼세요 →',14,H-14);
+    drawBin(binX);
+    if(state==='fly')drawBottle(bx,by,spin);
+    else if(state==='aim'){ drawBottle(bx,by,0); if(dragging)drawAim(); }
+    drawParts();
+    ctx.restore();
+    drawWind(); drawHUD();
+    if(feedback){ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font='bold 26px sans-serif';ctx.fillStyle=feedbackColor;ctx.fillText(feedback,W/2,96);}
+  }
+
+  /* ---- 루프/물리 ---- */
+  function burst(x,y){ for(let i=0;i<26;i++){const a=rnd(0,Math.PI*2),s=rnd(1,5);
+    parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,life:1,c:['#22c55e','#e9c46a','#3aa0e0','#7c5cff'][i%4]});} }
+  function goal(hit){
+    if(hit){ success++;combo++;bestCombo=Math.max(bestCombo,combo);
+      score+=100+(combo>1?(combo-1)*50:0); co2+=CO2_PER;
+      feedback=combo>1?'골인! ♻️ x'+combo:'골인! ♻️'; feedbackColor='#22c55e';
+      burst(binX+BIN.w/2,BIN.y); shake=7; sGoal();
+    } else { combo=0; feedback='아쉽다 💧'; feedbackColor='#ff7a2a'; shake=4; sMiss(); }
+    throwsLeft--; state='wait';
+    setTimeout(()=>{ if(throwsLeft>0){newThrow();} else finish(); },800);
+  }
+  function update(){
+    binX+=binDir*0.9; if(binX<BIN_MIN){binX=BIN_MIN;binDir=1;} if(binX>BIN_MAX){binX=BIN_MAX;binDir=-1;}
+    if(shake>0){shake*=0.86;if(shake<0.3)shake=0;}
+    if(parts.length){parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.18;p.life-=0.022;});parts=parts.filter(p=>p.life>0);}
+    if(state==='fly'){ const oldBy=by;
+      vx+=wind; bx+=vx; by+=vy; vy+=G; spin+=0.3;
+      const inX=bx>binX+12&&bx<binX+BIN.w-12;
+      if(vy>0&&oldBy<BIN.y&&by>=BIN.y&&inX){ by=BIN.y+30; goal(true); }
+      else if(by>=FLOOR||bx<-50||bx>W+50){ goal(false); }
     }
-    if(feedback){ctx.textAlign='center';ctx.font='bold 26px sans-serif';ctx.fillStyle=feedbackColor;ctx.fillText(feedback,W/2,90);}
   }
-  function fly(){
-    const oldBy=by;
-    bx+=vx;by+=vy;vy+=G;
-    const inX=bx>BIN.x+10&&bx<BIN.x+BIN.w-10;
-    if(vy>0&&oldBy<BIN.y&&by>=BIN.y&&inX){ by=BIN.y+34;render();return score(true); }
-    if(by>=FLOOR||bx<-40||bx>W+40){ return score(false); }
-    render(); raf=requestAnimationFrame(fly);
-  }
-  function score(hit){
-    if(hit)success++; throwsLeft--; state='wait';
-    feedback=hit?'골인! ♻️':'아쉽다 💧'; feedbackColor=hit?'#22c55e':'#ff7a2a'; render();
-    setTimeout(()=>{ if(throwsLeft>0){newThrow();render();} else finish(); },700);
-  }
+  function loop(){ update(); render(); raf=requestAnimationFrame(loop); }
+
   function finish(){
     state='done';
     const scen=success>=2?'low':success===1?'mid':'high';
-    const info=success>=2?['🌳','저탄소 미래','분리수거를 잘 해냈어요! 2100년이 한결 시원합니다.','#22c55e']
-              :success===1?['😐','중간 미래','절반의 노력. 미래는 어중간하게 더워져요.','#f5a623']
-              :['🔥','고탄소 미래','분리수거 실패… 2100년이 펄펄 끓어요.','#ff3b30'];
-    const r=$('gresult'); if(!r)return;
-    r.style.display='block';
+    const info=success>=2?['🌳','저탄소 미래','#22c55e','분리수거 달인! 2100년이 한결 시원해요.']
+              :success===1?['😐','중간 미래','#f5a623','절반의 노력. 미래는 어중간하게 더워져요.']
+              :['🔥','고탄소 미래','#ff3b30','분리수거 실패… 2100년이 펄펄 끓어요.'];
+    const r=$('gresult'); if(!r)return; r.style.display='block';
     r.innerHTML=`<div class="gres-emoji">${info[0]}</div>
-      <div class="gres-title" style="color:${info[3]}">${success}/3 성공 → ${info[1]}</div>
-      <div class="gres-msg">${info[2]}</div>
-      <div class="gres-note">이 결과가 ③ 지도의 <b>탄소 시나리오</b>를 정해요. 내 행동이 미래를 바꿉니다.</div>
+      <div class="gres-title" style="color:${info[2]}">${success}/3 성공 → ${info[1]}</div>
+      <div class="gres-msg">${info[3]}</div>
+      <div class="gres-stats">점수 <b>${score}</b> · 최고 콤보 <b>${bestCombo}</b> · CO₂ 약 <b>${co2}g</b> 절감*</div>
+      <div class="gres-note">이 결과가 ③ 지도의 <b>탄소 시나리오</b>를 정해요. 내 행동이 미래를 바꿉니다.
+        <span class="gres-cite">*재생 PET는 새 플라스틱보다 온실가스 최대 79%↓(1kg당 약 1.7kg)·병 1개 10g 환산 교육용 추정 — 출처: PET Recycling Team(ALPLA)</span></div>
       <div class="gres-btns">
         <button class="gres-go" onclick="GAME.toMap('${scen}')">내 미래 지도 보기 →</button>
-        <button class="gres-retry" onclick="GAME.reset()">다시 던지기</button>
+        <button class="gres-retry" onclick="GAME.reset()">다시 도전</button>
       </div>`;
   }
-  function onDown(e){ if(state!=='aim')return; e.preventDefault(); const p=pt(e);dragging=true;downX=p.x;downY=p.y;curX=p.x;curY=p.y;render(); }
-  function onMove(e){ if(!dragging)return; e.preventDefault(); const p=pt(e);curX=p.x;curY=p.y;render(); }
+
+  /* ---- 입력 ---- */
+  function onDown(e){ if(actx&&actx.state==='suspended')actx.resume();
+    if(state!=='aim')return; e.preventDefault(); const p=pt(e);dragging=true;downX=p.x;downY=p.y;curX=p.x;curY=p.y; }
+  function onMove(e){ if(!dragging)return; e.preventDefault(); const p=pt(e);curX=p.x;curY=p.y; }
   function onUp(){ if(!dragging)return; dragging=false; const v=launchVec();
-    if(Math.hypot(v.x,v.y)<1.4){render();return;}
-    vx=v.x;vy=v.y;bx=ORIGIN.x;by=ORIGIN.y;state='fly';feedback='';fly(); }
-  function init(){
-    cv=$('gcv'); if(!cv)return; ctx=cv.getContext('2d');
+    if(Math.hypot(v.x,v.y)<1.4)return;
+    vx=v.x;vy=v.y;bx=ORIGIN.x;by=ORIGIN.y;spin=0;state='fly';feedback='';sThrow(); }
+
+  function init(){ cv=$('gcv'); if(!cv)return; ctx=cv.getContext('2d');
     if(!bound){ bound=true;
       cv.addEventListener('pointerdown',onDown);
       cv.addEventListener('pointermove',onMove);
       window.addEventListener('pointerup',onUp);
     }
-    if(raf)cancelAnimationFrame(raf);
-    reset();
+    reset(); if(!running){running=true;loop();}
   }
   function toMap(scen){ if(scen)MAP.setScenario(scen); showTab(2); }
-  return { init, reset, toMap };
+  function toggleMute(btn){ muted=!muted; if(btn)btn.textContent=muted?'🔇 소리 꺼짐':'🔊 소리 켜짐'; }
+  return { init, reset, toMap, toggleMute };
 })();
 </script>
 </body>

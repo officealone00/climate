@@ -90,6 +90,22 @@
   .gskip-btn{border:1px solid var(--line);background:#0e1830;color:var(--sub);border-radius:11px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer}
   .gres-stats{margin-top:10px;font-size:13px;color:#e7ddf5}.gres-stats b{color:var(--gold)}
   .gres-cite{display:block;margin-top:6px;font-size:10.5px;color:#6f80a6;line-height:1.5}
+  /* === ACT1 실록 연도 슬라이더 === */
+  .qchips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 2px}
+  .qchip{font-size:12px;border:1px solid var(--line);background:#0e1830;color:var(--sub);border-radius:14px;padding:5px 11px;cursor:pointer;font-weight:700}
+  .qchip:hover{border-color:var(--gold);color:var(--gold)}
+  .ybar{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11.5px}
+  .ybar .nm{width:58px;flex:none;text-align:right;color:var(--sub)}
+  .ybar .track{flex:1;height:11px;background:#0b1428;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .ybar .fill{height:100%;border-radius:6px;min-width:0}
+  .ybar .ct{width:26px;flex:none;text-align:left;font-weight:800}
+  .wonmun{margin-top:8px;font-size:11.5px;color:#9aa8c6;background:#0b1428;border:1px solid var(--line);border-radius:8px;padding:8px 10px;line-height:1.65;max-height:90px;overflow:auto}
+  .anchors{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+  @media(max-width:680px){.anchors{grid-template-columns:1fr}}
+  .anchor{background:#0d1730;border:1px solid var(--line);border-radius:12px;padding:11px}
+  .anchor .at{font-size:12px;font-weight:800;margin-bottom:5px}
+  .anchor p{margin:0;font-size:11.5px;color:#cdd8ef;line-height:1.55}
+  .anchor .mm{color:var(--cool);font-weight:800}
 </style>
 </head>
 <body>
@@ -102,28 +118,39 @@
     <button id="t2" onclick="showTab(2)">③ 우리 동네 2100 <small>위성지도 위, 미래를 본다</small></button>
   </div>
 
-  <!-- ACT 1 -->
+  <!-- ACT 1: 측정의 역사 — 실록 연도 슬라이더 -->
   <section id="act1" class="on">
     <div class="card">
-      <div class="yearbig"><span id="year">삼국시대</span><small> · <span class="era-name" id="eraName">—</span></small></div>
-      <input id="slider" type="range" min="0" max="3" step="1" value="0">
-      <div class="ticks" id="ticks">
-        <span data-i="0" class="on">삼국시대<br>비를 '말'로</span><span data-i="1">1442 세종<br>측우기</span>
-        <span data-i="2">1871 고성<br>실측 mm</span><span data-i="3">현재<br>자동관측</span>
+      <div class="yearbig">📜 <span id="syear">1442</span><small> · <span class="era-name" id="sera">—</span> · <span id="sdate">—</span></small></div>
+      <div class="muted" style="font-size:12px;margin-top:2px">슬라이더를 옆으로 옮기면 해가 바뀌며 그 해 <b>실록의 기상 기사</b>가 그대로 나와요. <b>1392~1495년 · 조선왕조실록 실측 기록</b></div>
+      <input id="yslider" type="range" min="0" max="103" step="1" value="50">
+      <div class="qchips">
+        <button class="qchip" data-y="1392">⏮ 1392</button>
+        <button class="qchip" data-y="1442">💧 1442 측우기</button>
+        <button class="qchip" data-y="1495">1495 ⏭</button>
       </div>
-      <div class="stage">
-        <div class="tool"><svg class="measure" id="gauge" viewBox="0 0 100 150"></svg>
-          <div class="method" id="method"></div>
-          <div class="stat2"><div class="s"><div class="k">기록 방식</div><div class="v" id="recType">—</div></div>
-            <div class="s"><div class="k">정밀도</div><div class="v" id="prec">—</div></div></div></div>
-        <div>
-          <div class="book hist"><div class="h">📜 역사책</div><p id="hist">—</p><div class="saryo" id="saryo"></div></div>
-          <div class="book sci"><div class="h">🔬 과학책</div><p id="sci">—</p></div>
+      <div class="stage" style="grid-template-columns:1fr 1fr">
+        <div class="book hist"><div class="h">📜 역사책 — 실록 그대로</div>
+          <p id="shist">—</p>
+          <div class="saryo" id="ssrc"></div>
+          <div class="wonmun" id="swon"></div>
         </div>
+        <div class="book sci"><div class="h">🔎 데이터로 보기 — 그 해 기상 기사</div>
+          <div style="font-size:12px;color:var(--sub);margin-bottom:6px">이 해 실록 기상 기사 <b id="scount" style="color:var(--cool)">0</b>건 · 본문 키워드 집계(자료 기반)</div>
+          <div id="sbars"></div>
+        </div>
+      </div>
+      <div class="anchors">
+        <div class="anchor"><div class="at" style="color:var(--gold)">🔭 측정 이전 · 삼국시대</div>
+          <p>"6월에 큰 비가 열흘이나 내렸다. 한강 물이 넘쳐 민가가 떠내려가고 물에 잠겼다." 양(量)이 아닌 <b>겪은 일을 글로</b> 적던 시대.<br><span style="color:var(--sub)">— 삼국사기(기상청 한국 기상기록집❶)</span></p></div>
+        <div class="anchor"><div class="at" style="color:var(--cool)">📏 실측 · 1871·1873 고성</div>
+          <p>측우기 수심을 <b>mm로 실측</b>한 기록 26건. 최대 <span class="mm">152mm</span>(1871.8.11, 7촌6분)까지.<br><span style="color:var(--sub)">— 한국수자원공사 조선시대 측우기</span></p></div>
+        <div class="anchor"><div class="at" style="color:var(--good)">🛰️ 현재 · 자동관측</div>
+          <p>전국 자동관측소(ASOS)와 위성이 1분 단위로 감시. 이 실측이 <b>③우리 동네 2100</b>의 출발점.<br><button class="qchip" style="margin-top:6px" onclick="showTab(2)">현재 지도 보기 →</button></p></div>
       </div>
       <div class="cta"><div class="msg">조상의 <b>긴 기록</b>이 있어 우리는 "기후가 변한다"를 압니다. 그럼 — <b>내 행동</b>으로 미래를 바꿔볼까요?</div>
         <button onclick="showTab(3)">♻️ 분리수거 챌린지 하러가기 →</button></div>
-      <div class="src">출처: 기상청 <b>한국 기상기록집❶</b>(삼국사기) · <b>조선왕조실록</b>(세종실록 1442) · 한국수자원공사 <b>조선시대 측우기</b>(고성) · 종관기상관측(ASOS)</div>
+      <div class="src">출처: <b>조선왕조실록</b> 기상·천문·지진 기사(1392~1495, 12,184건 중 연도별 대표) · 기상청 <b>한국 기상기록집❶</b>(삼국사기) · 한국수자원공사 <b>조선시대 측우기</b>(고성) · 종관기상관측(ASOS). 분류 건수는 실록 본문 키워드 집계.</div>
     </div>
   </section>
 
@@ -168,6 +195,7 @@
   </section>
 </div>
 
+<script src="climate-data.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const KAKAO_KEY='c5fd34455bbe0b7858d63d08e1ddb74a';
@@ -179,36 +207,28 @@ function showTab(n){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ===== ACT 1 ===== */
+/* ===== ACT 1: 측정의 역사 — 실록 연도 슬라이더 (자료: 조선왕조실록 XLS) ===== */
 (function(){
-  const ERAS=[
-    {y:'삼국시대',era:"비를 '말'로 적던 시대",svg:'eye',rec:'정성적(말)',prec:'없음',method:"관원이 보고 <b>글로 기록</b>",
-     hist:"삼국시대엔 비·가뭄·우박을 글로만 적었어요. 양을 잰 게 아니라 \"큰 비가 왔다\"처럼 겪은 일을 서술했죠.",
-     saryo:'"6월에 큰 비가 열흘이나 내렸다. 한강 물이 넘쳐 민가가 떠내려가고 물에 잠겼다."', src:'— 《삼국사기》 (기상청 한국 기상기록집❶)',
-     sci:'문제는 "큰 비"가 <b>얼마나</b>인지 모른다는 것 — 시대·지역끼리 비교가 불가능해요.'},
-    {y:'1442',era:'세종 — 측우기 발명',svg:'gauge',rec:'정량(숫자)',prec:'척·촌·분',method:"<b>측우기</b>로 수심 측정",
-     hist:"세종 24년(1442), 측우기 제도를 만들어 전국이 <b>같은 기구·같은 자</b>로 비의 깊이를 재게 했어요.",
-     saryo:'"쇠를 주조하여 측우기라 하고, 주척으로 물의 깊이를 척·촌·분으로 재어 보고하라." — 임금이 그대로 따랐다.', src:'— 세종실록 1442.6.15',
-     sci:'드디어 비를 <b>숫자</b>로! 같은 규격으로 재니 지역·시대끼리 <b>비교 가능</b>해졌어요 — 과학의 탄생.'},
-    {y:'1871·73',era:'고성 — 측우기 실측',svg:'gauge',rec:'정량(mm)',prec:'1분=2mm',method:"측우기 수심 → mm",
-     hist:"경상도 고성에 비가 올 때마다 측우기 수심을 잰 기록 <b>26건</b>이 실제 강우량(mm)과 함께 남아 있어요.",
-     saryo:'"이달 비가 내려… 측우기 강우량은 1촌 2분(=24mm)이었다." (1873.9 고성)', src:'— 한국수자원공사 조선시대 측우기',
-     sci:'진짜 측정값이에요. 최대 <b>152mm</b>(1871.8.11)까지! 1분=2mm가 데이터로 확인돼요.'},
-    {y:'현재',era:'자동관측 + 위성',svg:'aws',rec:'정량(자동)',prec:'0.5mm·1분',method:"<b>자동</b> 우량계+위성",
-     hist:"지금은 전국 수백 개 자동관측소(AWS)와 천리안 위성이 1분 단위로 비를 감시해요.",
-     saryo:'"서울(108) 자동관측, 실시간 수집." — 이 실측이 ②우리 동네 2100의 출발점이에요.', src:'— 기상청 종관기상관측(ASOS)',
-     sci:'측정 원리는 <b>600년째 그대로</b> — 도구만 진화했어요. 긴 기록을 이으면 기후변화가 보입니다.'},
-  ];
-  const sl=$('slider');
-  function gauge(kind){let s='';
-    if(kind==='eye')s=`<circle cx="50" cy="58" r="30" fill="none" stroke="#b9a9d4" stroke-width="3"/><ellipse cx="50" cy="74" rx="36" ry="23" fill="none" stroke="#e9c46a" stroke-width="3"/><circle cx="50" cy="74" r="12" fill="#e9c46a"/><circle cx="50" cy="74" r="4.5" fill="#10182b"/><text x="50" y="120" text-anchor="middle" font-size="11" fill="#8ea0c2">눈으로 보고 붓으로</text>`;
-    else if(kind==='aws')s=`<rect x="47" y="38" width="6" height="70" fill="#7a6a9a"/><rect x="31" y="33" width="38" height="6" rx="3" fill="#3aa0e0"/><circle cx="50" cy="25" r="9" fill="#22c55e"/><path d="M28 108 h44" stroke="#6b5a45" stroke-width="3"/>${[22,40,58,76].map(x=>`<line x1="${x}" y1="116" x2="${x-4}" y2="126" stroke="#3aa0e0" stroke-width="2"/>`).join('')}<text x="50" y="142" text-anchor="middle" font-size="11" fill="#8ea0c2">자동 우량계+위성</text>`;
-    else{const t=18,bt=112,h=bt-t,wy=bt-h*0.6;s=`<ellipse cx="50" cy="118" rx="28" ry="5" fill="#1d2a44"/><rect x="33" y="${t}" width="34" height="${h}" rx="6" fill="#13203a" stroke="#c9a24b" stroke-width="2.5"/><rect x="35" y="${wy}" width="30" height="${bt-wy}" rx="4" fill="#3aa0e0" opacity=".82"/><text x="50" y="138" text-anchor="middle" font-size="11" fill="#c9a24b">측우기 — 수심을 잰다</text>`;}
-    $('gauge').innerHTML=s;}
-  function upd(){const e=ERAS[+sl.value];$('year').textContent=e.y;$('eraName').textContent=e.era;$('recType').textContent=e.rec;$('prec').textContent=e.prec;
-    $('method').innerHTML=e.method;$('hist').innerHTML=e.hist;$('sci').innerHTML=e.sci;$('saryo').innerHTML='<span>'+e.saryo+'</span><b>'+e.src+'</b>';gauge(e.svg);
-    document.querySelectorAll('#ticks span').forEach(s=>s.classList.toggle('on',+s.dataset.i===+sl.value));}
-  sl.addEventListener('input',upd);document.querySelectorAll('#ticks span').forEach(s=>s.addEventListener('click',()=>{sl.value=s.dataset.i;upd();}));upd();
+  const D=window.SILLOK||[];
+  const CATS=['비/홍수','가뭄','우박','눈/서리','천둥/번개','지진','바람','황충'];
+  const COL=['#3aa0e0','#e9c46a','#cdd9f5','#9fd0ff','#f5a623','#ff7a2a','#22c55e','#a07cff'];
+  const sl=$('yslider');
+  if(!D.length){ if($('shist'))$('shist').textContent='데이터(climate-data.js)를 불러오지 못했어요. 같은 폴더에 있는지 확인하세요.'; return; }
+  sl.max=D.length-1;
+  const idxOfYear=y=>{let bi=0;for(let i=0;i<D.length;i++){if(D[i].y<=y)bi=i;}return bi;};
+  function upd(){
+    const e=D[+sl.value]; if(!e)return;
+    $('syear').textContent=e.y; $('sera').textContent=e.k; $('sdate').textContent='음력 '+e.d;
+    $('shist').textContent=e.t;
+    $('ssrc').innerHTML='<b>— '+e.s+' · '+e.k+' · 음력 '+e.d+'</b>';
+    $('swon').textContent=e.o||'';
+    $('scount').textContent=e.n;
+    const mx=Math.max(1,Math.max.apply(null,e.c));
+    $('sbars').innerHTML=CATS.map((nm,i)=>{const v=e.c[i];return '<div class="ybar"><span class="nm">'+nm+'</span><span class="track"><span class="fill" style="width:'+Math.round(v/mx*100)+'%;background:'+COL[i]+'"></span></span><span class="ct">'+v+'</span></div>';}).join('');
+  }
+  sl.addEventListener('input',upd);
+  document.querySelectorAll('.qchip[data-y]').forEach(b=>b.addEventListener('click',()=>{sl.value=idxOfYear(+b.dataset.y);upd();}));
+  sl.value=idxOfYear(1442); upd();
 })();
 
 /* ===== ACT 2: 카카오 위성지도 ===== */

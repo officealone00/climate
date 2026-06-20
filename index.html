@@ -12,7 +12,8 @@
     background:radial-gradient(900px 520px at 18% -10%,#1a2747 0%,transparent 55%),var(--bg);line-height:1.6}
   .wrap{max-width:1000px;margin:0 auto;padding:18px 16px 50px}
   .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  h1{font-size:21px;margin:0;letter-spacing:-.4px}
+  h1{font-size:21px;margin:0;letter-spacing:-.4px;display:flex;align-items:center;gap:8px}
+  .applogo{width:30px;height:30px;border-radius:6px;display:block;flex:none}
   .tag{font-size:11px;color:#0a1120;background:var(--gold);border-radius:20px;padding:3px 9px;font-weight:800}
   .sub{color:var(--sub);font-size:13px;margin:5px 0 14px}
   .tabs{display:flex;gap:8px;margin-bottom:16px}
@@ -154,7 +155,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="head"><h1>🌡️ 기후 타임머신</h1><span class="tag">측우기 → 2100 우리 동네</span></div>
+  <div class="head"><h1><img src="logo.png" class="applogo" alt="기후 타임머신 로고">기후 타임머신</h1><span class="tag">측우기 → 2100 우리 동네</span></div>
   <p class="sub">측우기부터 위성까지 — 데이터로 <b>우리 동네 2100</b>을 직접 바꿔보세요.</p>
   <div class="tabs">
     <button id="t1" class="on" onclick="showTab(1)">① 측정의 역사 <small>측우기는 어떻게 기후를 알려줄까</small></button>

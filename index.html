@@ -292,7 +292,7 @@ function showTab(n){
     $('ssrc').innerHTML='📜 <i>실록 한 토막</i> — "'+e.ex+'"<b>— '+e.s+' · '+e.k+' · 음력 '+e.d+'</b>';
     $('scount').textContent=e.n;
     const mx=Math.max(1,Math.max.apply(null,e.c));
-    $('sbars').innerHTML=CATS.map((nm,i)=>{const v=e.c[i],w=Math.round(v/mx*1000)/10;return '<div class="ybar"><span class="nm">'+nm+'</span><span class="track"><span class="fill" style="width:'+w+'%;min-width:'+(v>0?3:0)+'px;background:'+COL[i]+'"></span></span><span class="ct">'+v+'</span></div>';}).join('');
+    $('sbars').innerHTML=CATS.map((nm,i)=>{const v=e.c[i],w=Math.round(v/mx*1000)/10;return '<div style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px"><span style="width:58px;flex:none;text-align:right;color:#eaf0ff">'+nm+'</span><span style="flex:1;height:16px;background:#0e1c34;border:1px solid #2a3a5a;border-radius:5px;overflow:hidden;display:block"><span style="display:block;height:100%;width:'+w+'%;min-width:'+(v>0?3:0)+'px;background:'+COL[i]+'"></span></span><span style="width:28px;flex:none;text-align:left;font-weight:800;color:#eaf0ff">'+v+'</span></div>';}).join('');
     setScene(e);
   }
   sl.addEventListener('input',upd);

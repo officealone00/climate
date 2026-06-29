@@ -514,6 +514,7 @@ const GAME=(function(){
               :success===1?['😐','중간 미래','#f5a623','절반의 노력. 폭염이 꽤 늘어나는 미래예요.']
               :['🔥','고탄소 미래','#ff3b30','탄소를 못 줄였어요… 2100년 폭염이 가장 크게 늘어요.'];
     const r=$('gresult'); if(!r)return; r.style.display='block';
+    const bs="display:block;width:100%;text-align:left;margin:4px 0;padding:9px 12px;border:1px solid #2a3a5a;border-radius:9px;background:#0e1c34;color:#eaf0ff;font-size:13px;cursor:pointer;word-break:keep-all";
     r.innerHTML=`<div class="gres-emoji">${info[0]}</div>
       <div class="gres-title" style="color:${info[2]}">${success}/3 성공 → ${info[1]}</div>
       <div class="gres-msg">${info[3]}</div>
@@ -521,6 +522,23 @@ const GAME=(function(){
       <div class="gres-ai" id="gresai">🤖 AI 기후도우미가 살펴보는 중…</div>
       <div class="gres-note">이 결과가 ② 지도의 <b>탄소 시나리오</b>를 정해요. 내 행동이 미래를 바꿉니다.
         <span class="gres-cite">폭염 증가폭은 국립기상과학원 SSP(+15~71일) 인용·교육용 모델. *재생 PET는 새 플라스틱보다 온실가스 최대 79%↓ — 출처 PET Recycling Team(ALPLA), 병 1개 10g 환산 교육용 추정.</span></div>
+      <div class="gres-quiz" style="margin-top:12px;padding:12px 14px;border:1px solid #2a3a5a;border-radius:12px;background:rgba(14,28,52,.55)">
+        <div style="font-weight:800;margin-bottom:8px">📚 오늘 배운 것 · 30초 퀴즈</div>
+        <div class="gq" style="margin-bottom:10px">
+          <div style="font-size:13px;margin-bottom:6px;word-break:keep-all">Q1. 조선시대에 비의 양을 처음으로 ‘자(숫자)’로 잰 기구는?</div>
+          <button data-ok="1" onclick="GAME.quiz(this)" style="${bs}">측우기</button>
+          <button onclick="GAME.quiz(this)" style="${bs}">나침반</button>
+          <button onclick="GAME.quiz(this)" style="${bs}">온도계</button>
+          <div class="qfb" style="font-size:12px;margin-top:5px"></div>
+        </div>
+        <div class="gq">
+          <div style="font-size:13px;margin-bottom:6px;word-break:keep-all">Q2. 우리가 탄소를 줄이면 2100년 여름 폭염은 어떻게 될까?</div>
+          <button data-ok="1" onclick="GAME.quiz(this)" style="${bs}">덜 늘어난다</button>
+          <button onclick="GAME.quiz(this)" style="${bs}">더 늘어난다</button>
+          <button onclick="GAME.quiz(this)" style="${bs}">변화가 없다</button>
+          <div class="qfb" style="font-size:12px;margin-top:5px"></div>
+        </div>
+      </div>
       <div class="gres-btns">
         <button class="gres-go" onclick="GAME.toMap('${scen}')">내 미래 지도 보기 →</button>
         <button class="gres-retry" onclick="GAME.reset()">다시 도전</button>
@@ -558,8 +576,18 @@ const GAME=(function(){
     reset(); if(!running){running=true;loop();}
   }
   function toMap(scen){ if(scen)MAP.setScenario(scen); showTab(2); }
+  function quiz(btn){
+    const wrap=btn.closest('.gq'); if(!wrap||wrap.dataset.done)return; wrap.dataset.done='1';
+    const ok=btn.dataset.ok==='1', fb=wrap.querySelector('.qfb');
+    wrap.querySelectorAll('button').forEach(b=>{b.disabled=true;b.style.cursor='default';b.style.opacity='.92';});
+    if(ok){ btn.style.background='#15351f'; btn.style.borderColor='#22c55e';
+      if(fb){fb.textContent='✅ 맞아요!';fb.style.color='#34d27a';} }
+    else{ btn.style.background='#3a1620'; btn.style.borderColor='#ff5a4d';
+      const c=wrap.querySelector('button[data-ok="1"]'); if(c){c.style.background='#15351f';c.style.borderColor='#22c55e';}
+      if(fb){fb.textContent='아쉬워요 — 초록색이 정답이에요.';fb.style.color='#ff8a4d';} }
+  }
   function toggleMute(btn){ muted=!muted; if(btn)btn.textContent=muted?'🔇 소리 꺼짐':'🔊 소리 켜짐'; }
-  return { init, reset, toMap, toggleMute };
+  return { init, reset, toMap, toggleMute, quiz };
 })();
 </script>
 </body>
